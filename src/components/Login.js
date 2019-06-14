@@ -2,7 +2,10 @@ import * as React from 'react';
 import {Text, View, StyleSheet} from "react-native";
 import {useNavigation} from "react-navigation-hooks";
 import {Input, Button} from 'react-native-elements';
+import AsyncStorage from '@react-native-community/async-storage';
 import {apiEndPoint} from "../config";
+
+const emailRegx = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 
 export const LoginScreen = () => {
     const {navigate} = useNavigation();
@@ -17,7 +20,7 @@ export const LoginScreen = () => {
     };
 
     const handleLogin = () => {
-        if (uname.length < 3) {
+        if (!emailRegx.test(uname)) {
             setUnameErrMsg('Please enter vaild username');
         } else {
             setUnameErrMsg('');
@@ -27,7 +30,8 @@ export const LoginScreen = () => {
         } else {
             setPwdErrMsg('');
         }
-        if (pwd.length > 7 && uname.length > 2) {
+        if (pwd.length > 7 && emailRegx.test(uname)) {
+            setErrMsg('');
             loginApi();
         }
     };
@@ -45,10 +49,14 @@ export const LoginScreen = () => {
                     password: pwd,
                 }),
             }).then(res => res.json()).then((res) => {
-                console.log(res);
                 if (res.status === 200) {
-                    setErrMsg('');
-                    navigate('Home');
+                    AsyncStorage.setItem('pgToken', res.token);
+                    if (res.isProfileComplete) {
+                        navigate('Home');
+                    } else {
+                        navigate('EditProfile');
+                    }
+
                 } else {
                     setErrMsg(res.message);
                 }
@@ -62,7 +70,7 @@ export const LoginScreen = () => {
     return (<View style={styles.container}>
         <Text style={styles.heading}>Welcome to Play2Gether</Text>
         <Input
-            placeholder='User name'
+            placeholder='Email'
             errorStyle={{color: 'red'}}
             errorMessage={unameErrMsg}
             style={styles.input}
@@ -129,6 +137,8 @@ const styles = StyleSheet.create({
     },
     error: {
         color: 'red',
-        textAlign: 'center'
+        textAlign: 'center',
+        marginBottom: 10,
+        fontSize: 18
     }
 });
