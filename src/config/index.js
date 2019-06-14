@@ -1,0 +1,1 @@
+export const apiEndPoint = 'https://play2gether.herokuapp.com';
