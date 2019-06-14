@@ -45,7 +45,7 @@ export const SignupScreen = () => {
                     isProfileComplete: false
                 }),
             }).then(res => res.json()).then((res) => {
-                navigate('Home');
+                navigate('EditProfile');
             }).catch(res => console.error(res));
         } catch (e) {
             console.error(e);
