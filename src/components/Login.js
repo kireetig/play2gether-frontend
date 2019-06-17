@@ -57,7 +57,6 @@ export const LoginScreen = () => {
                     password: pwd,
                 }),
             }).then(res => res.json()).then(async (res) => {
-                console.log(res);
                 if (res.status === 200) {
                     await storeData(res.token);
                     if (res.isProfileComplete) {
@@ -78,7 +77,6 @@ export const LoginScreen = () => {
     React.useEffect(() => {
         const response = AsyncStorage.getItem('playToken');
         response.then(token => {
-            console.log(token);
             if(token){
                navigate('EditProfile');
             }
