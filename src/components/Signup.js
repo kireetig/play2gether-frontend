@@ -3,6 +3,7 @@ import {Text, View, Button, StyleSheet} from 'react-native';
 import {useNavigation} from 'react-navigation-hooks'
 import {Input} from "react-native-elements";
 import {apiEndPoint} from '../config';
+import AsyncStorage from '@react-native-community/async-storage';
 
 export const SignupScreen = () => {
     const {navigate} = useNavigation();
@@ -45,6 +46,7 @@ export const SignupScreen = () => {
                     isProfileComplete: false
                 }),
             }).then(res => res.json()).then((res) => {
+                AsyncStorage.setItem('playToken', res.token);
                 navigate('EditProfile');
             }).catch(res => console.error(res));
         } catch (e) {

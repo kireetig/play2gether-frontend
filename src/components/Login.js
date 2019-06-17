@@ -36,6 +36,14 @@ export const LoginScreen = () => {
         }
     };
 
+    const storeData = async (value) => {
+        try {
+            await AsyncStorage.setItem('playToken', value);
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
     async function loginApi() {
         try {
             await fetch(`${apiEndPoint}/user/login`, {
@@ -48,9 +56,10 @@ export const LoginScreen = () => {
                     email: uname,
                     password: pwd,
                 }),
-            }).then(res => res.json()).then((res) => {
+            }).then(res => res.json()).then(async (res) => {
+                console.log(res);
                 if (res.status === 200) {
-                    AsyncStorage.setItem('pgToken', res.token);
+                    await storeData(res.token);
                     if (res.isProfileComplete) {
                         navigate('Home');
                     } else {
@@ -65,6 +74,16 @@ export const LoginScreen = () => {
             console.error(e);
         }
     }
+
+    React.useEffect(() => {
+        const response = AsyncStorage.getItem('playToken');
+        response.then(token => {
+            console.log(token);
+            if(token){
+               navigate('EditProfile');
+            }
+        })
+    });
 
 
     return (<View style={styles.container}>
