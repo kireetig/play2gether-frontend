@@ -8,14 +8,18 @@
   },
   "dependencies": {
     "@react-native-community/async-storage": "^1.5.0",
+    "lodash": "^4.17.11",
     "react": "16.8.3",
     "react-native": "^0.59.6",
-    "scheduler": "0.14.0",
     "react-native-elements": "^1.1.0",
     "react-native-gesture-handler": "^1.2.1",
-    "react-native-vector-icons": "^6.4.2",
+    "react-native-paper": "^2.16.0",
+    "react-native-sectioned-multi-select": "^0.6.7",
+    "react-native-vector-icons": "^6.5.0",
     "react-navigation": "^3.9.1",
-    "react-navigation-hooks": "^1.0.0-alpha.2"
+    "react-navigation-hooks": "^1.0.0-alpha.2",
+    "react-navigation-material-bottom-tabs": "^1.0.0",
+    "scheduler": "0.14.0"
   },
   "devDependencies": {
     "@babel/core": "^7.4.4",

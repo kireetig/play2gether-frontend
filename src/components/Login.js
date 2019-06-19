@@ -78,7 +78,7 @@ export const LoginScreen = () => {
         const response = AsyncStorage.getItem('playToken');
         response.then(token => {
             if(token){
-               navigate('EditProfile');
+               navigate('Home');
             }
         })
     });

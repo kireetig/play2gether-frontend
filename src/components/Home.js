@@ -6,8 +6,8 @@ export const HomeScreen = () => {
     const { navigate } = useNavigation();
     return (<View>
         <Text style={styles.heading}>Home Page</Text>
-        <Button title={'Login'} color={'red'}
-            onPress={() => navigate('Login')}
+        <Button title={'Edit Profile'} color={'red'}
+            onPress={() => navigate('EditProfile')}
         />
     </View>)
 };
