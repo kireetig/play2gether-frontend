@@ -4,6 +4,7 @@ import {useNavigation} from 'react-navigation-hooks'
 import {Input} from "react-native-elements";
 import {apiEndPoint} from '../config';
 import AsyncStorage from '@react-native-community/async-storage';
+import Icon from "react-native-vector-icons/FontAwesome";
 
 export const SignupScreen = () => {
     const {navigate} = useNavigation();
@@ -54,16 +55,31 @@ export const SignupScreen = () => {
         }
     }
 
-    return (<View>
-        <Text style={styles.heading}>Sign Up</Text>
+    return (<View style={{margin: 10}}>
+        <Text style={styles.heading}>Welcome to Play2Gether</Text>
+        <Text style={styles.subHeading}>Sign Up</Text>
         <Input
             placeholder='Name'
             style={styles.input}
             onChangeText={(text) => {
                 setName(text);
             }}
+            leftIcon={
+                <Icon
+                    name='user'
+                    size={24}
+                    color='gray'
+                />
+            }
         />
         <Input
+            leftIcon={
+                <Icon
+                    name='envelope'
+                    size={24}
+                    color='gray'
+                />
+            }
             placeholder='Email'
             style={styles.input}
             onChangeText={(text) => {
@@ -72,6 +88,13 @@ export const SignupScreen = () => {
         />
         <Input
             placeholder='Password (minimum 8 characters)'
+            leftIcon={
+                <Icon
+                    name='lock'
+                    size={24}
+                    color='gray'
+                />
+            }
             style={styles.input}
             onChangeText={(text) => {
                 setPwd(text);
@@ -84,20 +107,36 @@ export const SignupScreen = () => {
             onChangeText={(text) => {
                 setConfirmPwd(text);
             }}
+            leftIcon={
+                <Icon
+                    name='lock'
+                    size={24}
+                    color='gray'
+                />
+            }
             secureTextEntry={true}
         />
         <Text style={styles.errorStyle}>{errMsg}</Text>
         <Button title={'Sign Up'} onPress={handleSignUp} styles={styles.button}/>
+        <Text style={styles.signup}>Already have account? <Text onPress={() => navigate('Login')}
+                                                               style={{color: 'green'}}> Login</Text></Text>
     </View>)
 };
 
 const styles = StyleSheet.create({
     heading: {
+        fontSize: 25,
+        textAlign: 'center',
+        color: '#0dc67c',
+        fontWeight: 'bold',
+        marginTop: '30%',
+        marginBottom: '10%'
+    },
+    subHeading: {
         fontSize: 20,
         textAlign: 'center',
-        marginBottom: 10,
-        marginTop: 10,
-        color: 'green'
+        color: '#10a1ef',
+        fontWeight: 'bold',
     },
     errorStyle: {
         color: 'red',
@@ -108,5 +147,10 @@ const styles = StyleSheet.create({
     },
     button: {
         margin: 10,
-    }
+    },
+    signup: {
+        fontSize: 15,
+        textAlign: 'center',
+        marginTop: '10%'
+    },
 });

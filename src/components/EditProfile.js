@@ -51,8 +51,13 @@ export const EditProfileScreen = () => {
         setSelectedSports(selectedItems);
         const myFav = [];
         selectedItems.forEach(item => {
-            const index = _.findIndex(sports, {_id: item});
-            myFav.push(sports[index]);
+            const index = _.findIndex(favSports, {_id: item});
+            if (favSports[index]) {
+                myFav.push(favSports[index]);
+            } else {
+                const i = _.findIndex(sports, {_id: item});
+                myFav.push(sports[i]);
+            }
         });
         if (myFav.length < rated) {
             setRated(rate => rate - 1);
@@ -61,6 +66,7 @@ export const EditProfileScreen = () => {
     };
 
     const handleNext = () => {
+        setMsg({message: '', color: 'green'});
         fetch(`${apiEndPoint}/user/editProfile?token=${ptoken}`, {
             method: 'POST',
             headers: {
@@ -73,9 +79,11 @@ export const EditProfileScreen = () => {
                 isProfileComplete: true
             }),
         }).then(res => res.json()).then(res => {
-            console.log(JSON.stringify(res),res);
             if (res.status === 200) {
                 setMsg({message: 'Successfully Updated', color: 'green'});
+                setTimeout(() => {
+                    setMsg({message: '', color: 'green'});
+                },4000);
             } else {
                 setMsg({message: res.error, color: 'red'});
             }
@@ -112,64 +120,66 @@ export const EditProfileScreen = () => {
     React.useEffect(() => {
         getProfile();
         getSports();
-        console.log(sports);
     }, []);
 
-    return (<ScrollView style={styles.containerStyle}>
-        <Text style={styles.heading}>My Profile</Text>
-        <Text style={styles.label}>Name : {user ? user.name : null}</Text>
-        <Text style={styles.label}>Email : {user ? user.email : null}</Text>
-        <Text style={styles.subHeading}>Favorite Sports</Text>
-        {sports.length > 0 ? <SectionedMultiSelect
-            items={sports}
-            uniqueKey='_id'
-            selectText='Select Sports'
-            showDropDowns={false}
-            onSelectedItemsChange={onSelectedItemsChange}
-            selectedItems={selectedSports}
-            confirmText={'Select'}
-            styles={{selectedItem: {color: 'blue'}}}
-            colors={{chipColor: '#0000ff'}}
-        /> : null}
-
-        <Text style={styles.subHeading}>Rate yourself</Text>
-        <Text> Rate how proficient are you in your favorite sports</Text>
-        {favSports.map((sport, index) => {
-            return (<View key={sport._id} style={{marginTop: 10}}>
-                <Text style={styles.label}> {sport.name} </Text>
-                <SectionedMultiSelect
-                    items={ratings}
-                    uniqueKey='score'
-                    single={true}
-                    selectText='Select rating'
+    return (
+        <View style={styles.containerStyle}>
+            <ScrollView style={{paddingBottom: 20}}>
+                <Text style={styles.heading}>My Profile</Text>
+                <Text style={styles.label}>Name : {user ? user.name : null}</Text>
+                <Text style={styles.label}>Email : {user ? user.email : null}</Text>
+                <Text style={styles.subHeading}>Favorite Sports</Text>
+                {sports.length > 0 ? <SectionedMultiSelect
+                    items={sports}
+                    uniqueKey='_id'
+                    selectText='Select Sports'
                     showDropDowns={false}
-                    onSelectedItemsChange={(e) => onRatingChange(e, index)}
-                    selectedItems={[sport.selfRatingScore]}
+                    onSelectedItemsChange={onSelectedItemsChange}
+                    selectedItems={selectedSports}
                     confirmText={'Select'}
                     styles={{selectedItem: {color: 'blue'}}}
                     colors={{chipColor: '#0000ff'}}
+                /> : null}
+
+                <Text style={styles.subHeading}>Rate yourself</Text>
+                <Text> Rate how proficient are you in your favorite sports</Text>
+                {favSports.map((sport, index) => {
+                    return (<View key={sport._id} style={{marginTop: 10}}>
+                        <Text style={styles.label}> {sport.name} </Text>
+                        <SectionedMultiSelect
+                            items={ratings}
+                            uniqueKey='score'
+                            single={true}
+                            selectText='Select rating'
+                            showDropDowns={false}
+                            onSelectedItemsChange={(e) => onRatingChange(e, index)}
+                            selectedItems={[sport.selfRatingScore]}
+                            confirmText={'Select'}
+                            styles={{selectedItem: {color: 'blue'}}}
+                            colors={{chipColor: '#0000ff'}}
+                        />
+                    </View>)
+                })}
+                <Text
+                    style={{color: msg.color, textAlign: 'center', fontSize: 15, marginBottom: 10}}>{msg.message}</Text>
+                <Button
+                    raised
+                    large
+                    title={'Update'}
+                    color={'blue'}
+                    onPress={handleNext}
+                    style={styles.button}
+                    disabled={favSports.length > rated || favSports.length < 1}
+                    disabledStyle={{backgroundColor: '#ccc'}}
                 />
-            </View>)
-        })}
-        <Text style={{color: msg.color, textAlign: 'center', fontSize: 15, marginBottom: 10}}>{msg.message}</Text>
-        <Button
-            raised
-            large
-            title={'Update'}
-            color={'blue'}
-            onPress={handleNext}
-            style={styles.button}
-            disabled={favSports.length > rated || favSports.length < 1}
-            disabledStyle={{backgroundColor: '#ccc'}}
-        />
-    </ScrollView>)
+            </ScrollView>
+        </View>)
 };
 
 const styles = StyleSheet.create({
     containerStyle: {
         padding: 10,
-        paddingBottom: 30,
-        marginBottom: 30
+        paddingBottom: 30
     },
     heading: {
         fontSize: 20,

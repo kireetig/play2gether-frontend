@@ -4,6 +4,7 @@ import {useNavigation} from "react-navigation-hooks";
 import {Input, Button} from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
 import {apiEndPoint} from "../config";
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const emailRegx = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 
@@ -53,12 +54,14 @@ export const LoginScreen = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    email: uname,
+                    email: uname.toLowerCase(),
                     password: pwd,
                 }),
             }).then(res => res.json()).then(async (res) => {
                 if (res.status === 200) {
                     await storeData(res.token);
+                    setPwd('');
+                    console.log('password reset');
                     if (res.isProfileComplete) {
                         navigate('Home');
                     } else {
@@ -86,8 +89,16 @@ export const LoginScreen = () => {
 
     return (<View style={styles.container}>
         <Text style={styles.heading}>Welcome to Play2Gether</Text>
+        <Text style={styles.login}>Login</Text>
         <Input
-            placeholder='Email'
+            placeholder={'Email'}
+            leftIcon={
+                <Icon
+                    name='envelope'
+                    size={24}
+                    color='gray'
+                />
+            }
             errorStyle={{color: 'red'}}
             errorMessage={unameErrMsg}
             style={styles.input}
@@ -103,6 +114,13 @@ export const LoginScreen = () => {
             onChangeText={(text) => {
                 setPwd(text);
             }}
+            leftIcon={
+                <Icon
+                    name='lock'
+                    size={24}
+                    color='gray'
+                />
+            }
             secureTextEntry={true}
         />
         <Text style={styles.forgot}>
@@ -128,14 +146,16 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         display: "flex",
-        flexDirection: "column"
+        flexDirection: "column",
+        margin: 10
     },
     heading: {
-        fontSize: 20,
+        fontSize: 25,
         textAlign: 'center',
-        color: 'green',
+        color: '#0dc67c',
         fontWeight: 'bold',
-        marginTop: '10%'
+        marginTop: '30%',
+        marginBottom: '10%'
     },
     input: {},
     forgot: {
@@ -150,12 +170,18 @@ const styles = StyleSheet.create({
     },
     button: {
         marginTop: 20,
-        width: '90%'
+        width: '90%',
     },
     error: {
         color: 'red',
         textAlign: 'center',
         marginBottom: 10,
         fontSize: 18
+    },
+    login: {
+        fontSize: 20,
+        textAlign: 'center',
+        color: '#10a1ef',
+        fontWeight: 'bold',
     }
 });

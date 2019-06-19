@@ -17,9 +17,10 @@ const BottonNavigator = createBottomTabNavigator({
             let IconComponent = Ionicons;
             let iconName;
             if (routeName === 'Home') {
-                iconName = `ios-information-circle${focused ? '' : '-outline'}`;
+                iconName = `ios-home`;
+                console.log(iconName, focused);
             } else if (routeName === 'EditProfile') {
-                iconName = `ios-checkmark-circle${focused ? '' : '-outline'}`;
+                iconName = `ios-information-circle${focused ? '' : '-outline'}`;
             }
             return <IconComponent name={iconName} size={25} color={tintColor}/>;
         },
