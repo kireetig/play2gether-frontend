@@ -3,7 +3,7 @@ import {Text, View, Button} from 'react-native';
 import {useNavigation} from 'react-navigation-hooks';
 import AsyncStorage from '@react-native-community/async-storage';
 import {homeStyles} from "./homeCss";
-import {LOGIN} from "../../Navigation/navigationConstants";
+import {LOGIN} from "../../navigation/navigationConstants";
 
 export const HomeScreen = () => {
     const { navigate } = useNavigation();

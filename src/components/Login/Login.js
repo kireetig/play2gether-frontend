@@ -6,7 +6,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import {apiEndPoint, tokenName} from "../../constants";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {loginStyles} from "./loginCss";
-import {SIGNUP, HOME, EDITPROFILE} from "../../Navigation/navigationConstants";
+import {SIGNUP, HOME, EDITPROFILE} from "../../navigation/navigationConstants";
 import {commonStyles} from "../../commonStyles";
 
 const emailRegx = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;

@@ -8,7 +8,7 @@ import SectionedMultiSelect from "react-native-sectioned-multi-select";
 import {editStyles} from './editProfileCss';
 import {commonStyles} from "../../commonStyles";
 import {apiEndPoint, tokenName} from "../../constants";
-import {LOGIN} from "../../Navigation/navigationConstants";
+import {LOGIN} from "../../navigation/navigationConstants";
 
 export const EditProfileScreen = () => {
     const {navigate} = useNavigation();

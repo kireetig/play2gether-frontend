@@ -6,7 +6,7 @@ import {apiEndPoint, tokenName} from '../../constants';
 import AsyncStorage from '@react-native-community/async-storage';
 import Icon from "react-native-vector-icons/FontAwesome";
 import {signupStyles} from "./signupCss";
-import {EDITPROFILE, LOGIN} from "../../Navigation/navigationConstants";
+import {EDITPROFILE, LOGIN} from "../../navigation/navigationConstants";
 
 export const SignupScreen = () => {
     const {navigate} = useNavigation();
