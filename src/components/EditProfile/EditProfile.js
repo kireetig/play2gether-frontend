@@ -1,11 +1,14 @@
 import * as React from 'react';
-import {Text, View, ScrollView, StyleSheet} from 'react-native';
+import {Text, View, ScrollView} from 'react-native';
 import {useNavigation} from 'react-navigation-hooks';
 import AsyncStorage from '@react-native-community/async-storage';
-import {apiEndPoint} from "../config";
 import {Button} from "react-native-elements";
 import * as _ from 'lodash';
 import SectionedMultiSelect from "react-native-sectioned-multi-select";
+import {editStyles} from './editProfileCss';
+import {commonStyles} from "../../commonStyles";
+import {apiEndPoint, tokenName} from "../../constants";
+import {LOGIN} from "../../Navigation/navigationConstants";
 
 export const EditProfileScreen = () => {
     const {navigate} = useNavigation();
@@ -18,13 +21,13 @@ export const EditProfileScreen = () => {
     const [msg, setMsg] = React.useState({message: '', color: 'red'});
 
     const getProfile = () => {
-        const response = AsyncStorage.getItem('playToken');
+        const response = AsyncStorage.getItem(tokenName);
         response.then(token => {
             setToken(token);
             fetch(`${apiEndPoint}/user/getProfile?token=${token}`).then(res => res.json()).then(res => {
                 if (res.status === 403) {
-                    AsyncStorage.removeItem('playToken');
-                    navigate('Login');
+                    AsyncStorage.removeItem(tokenName);
+                    navigate(LOGIN);
                 } else {
                     setUser(res.data);
                     if (res.data.favSports.length) {
@@ -83,7 +86,7 @@ export const EditProfileScreen = () => {
                 setMsg({message: 'Successfully Updated', color: 'green'});
                 setTimeout(() => {
                     setMsg({message: '', color: 'green'});
-                },4000);
+                }, 4000);
             } else {
                 setMsg({message: res.error, color: 'red'});
             }
@@ -123,12 +126,12 @@ export const EditProfileScreen = () => {
     }, []);
 
     return (
-        <View style={styles.containerStyle}>
-            <ScrollView style={{paddingBottom: 20}}>
-                <Text style={styles.heading}>My Profile</Text>
-                <Text style={styles.label}>Name : {user ? user.name : null}</Text>
-                <Text style={styles.label}>Email : {user ? user.email : null}</Text>
-                <Text style={styles.subHeading}>Favorite Sports</Text>
+        <View style={editStyles.containerStyle}>
+            <ScrollView style={commonStyles.pb20}>
+                <Text style={editStyles.heading}>My Profile</Text>
+                <Text style={editStyles.label}>Name : {user ? user.name : null}</Text>
+                <Text style={editStyles.label}>Email : {user ? user.email : null}</Text>
+                <Text style={editStyles.subHeading}>Favorite Sports</Text>
                 {sports.length > 0 ? <SectionedMultiSelect
                     items={sports}
                     uniqueKey='_id'
@@ -141,11 +144,11 @@ export const EditProfileScreen = () => {
                     colors={{chipColor: '#0000ff'}}
                 /> : null}
 
-                <Text style={styles.subHeading}>Rate yourself</Text>
+                <Text style={editStyles.subHeading}>Rate yourself</Text>
                 <Text> Rate how proficient are you in your favorite sports</Text>
                 {favSports.map((sport, index) => {
-                    return (<View key={sport._id} style={{marginTop: 10}}>
-                        <Text style={styles.label}> {sport.name} </Text>
+                    return (<View key={sport._id} style={commonStyles.mt10}>
+                        <Text style={editStyles.label}> {sport.name} </Text>
                         <SectionedMultiSelect
                             items={ratings}
                             uniqueKey='score'
@@ -168,39 +171,10 @@ export const EditProfileScreen = () => {
                     title={'Update'}
                     color={'blue'}
                     onPress={handleNext}
-                    style={styles.button}
+                    style={editStyles.button}
                     disabled={favSports.length > rated || favSports.length < 1}
-                    disabledStyle={{backgroundColor: '#ccc'}}
+                    disabledStyle={commonStyles.disabledBgColor}
                 />
             </ScrollView>
         </View>)
 };
-
-const styles = StyleSheet.create({
-    containerStyle: {
-        padding: 10,
-        paddingBottom: 30
-    },
-    heading: {
-        fontSize: 20,
-        textAlign: 'center',
-        marginBottom: 10,
-        color: 'black',
-        fontWeight: 'bold'
-    },
-    label: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        textTransform: 'uppercase'
-    },
-    subHeading: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginTop: 20,
-        marginBottom: 5
-    },
-    button: {
-        marginTop: 20,
-        marginBottom: 80
-    }
-});

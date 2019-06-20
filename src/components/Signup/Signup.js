@@ -1,10 +1,12 @@
 import * as React from 'react';
-import {Text, View, Button, StyleSheet} from 'react-native';
+import {Text, View, Button} from 'react-native';
 import {useNavigation} from 'react-navigation-hooks'
 import {Input} from "react-native-elements";
-import {apiEndPoint} from '../config';
+import {apiEndPoint, tokenName} from '../../constants';
 import AsyncStorage from '@react-native-community/async-storage';
 import Icon from "react-native-vector-icons/FontAwesome";
+import {signupStyles} from "./signupCss";
+import {EDITPROFILE, LOGIN} from "../../Navigation/navigationConstants";
 
 export const SignupScreen = () => {
     const {navigate} = useNavigation();
@@ -47,8 +49,8 @@ export const SignupScreen = () => {
                     isProfileComplete: false
                 }),
             }).then(res => res.json()).then((res) => {
-                AsyncStorage.setItem('playToken', res.token);
-                navigate('EditProfile');
+                AsyncStorage.setItem(tokenName, res.token);
+                navigate(EDITPROFILE);
             }).catch(res => console.error(res));
         } catch (e) {
             console.error(e);
@@ -56,11 +58,11 @@ export const SignupScreen = () => {
     }
 
     return (<View style={{margin: 10}}>
-        <Text style={styles.heading}>Welcome to Play2Gether</Text>
-        <Text style={styles.subHeading}>Sign Up</Text>
+        <Text style={signupStyles.heading}>Welcome to Play2Gether</Text>
+        <Text style={signupStyles.subHeading}>Sign Up</Text>
         <Input
             placeholder='Name'
-            style={styles.input}
+            style={signupStyles.input}
             onChangeText={(text) => {
                 setName(text);
             }}
@@ -81,7 +83,7 @@ export const SignupScreen = () => {
                 />
             }
             placeholder='Email'
-            style={styles.input}
+            style={signupStyles.input}
             onChangeText={(text) => {
                 setEmail(text);
             }}
@@ -95,7 +97,7 @@ export const SignupScreen = () => {
                     color='gray'
                 />
             }
-            style={styles.input}
+            style={signupStyles.input}
             onChangeText={(text) => {
                 setPwd(text);
             }}
@@ -103,7 +105,7 @@ export const SignupScreen = () => {
         />
         <Input
             placeholder='Confirm Password'
-            style={styles.input}
+            style={signupStyles.input}
             onChangeText={(text) => {
                 setConfirmPwd(text);
             }}
@@ -116,41 +118,9 @@ export const SignupScreen = () => {
             }
             secureTextEntry={true}
         />
-        <Text style={styles.errorStyle}>{errMsg}</Text>
-        <Button title={'Sign Up'} onPress={handleSignUp} styles={styles.button}/>
-        <Text style={styles.signup}>Already have account? <Text onPress={() => navigate('Login')}
+        <Text style={signupStyles.errorStyle}>{errMsg}</Text>
+        <Button title={'Sign Up'} onPress={handleSignUp} styles={signupStyles.button}/>
+        <Text style={signupStyles.signup}>Already have account? <Text onPress={() => navigate(LOGIN)}
                                                                style={{color: 'green'}}> Login</Text></Text>
     </View>)
 };
-
-const styles = StyleSheet.create({
-    heading: {
-        fontSize: 25,
-        textAlign: 'center',
-        color: '#0dc67c',
-        fontWeight: 'bold',
-        marginTop: '30%',
-        marginBottom: '10%'
-    },
-    subHeading: {
-        fontSize: 20,
-        textAlign: 'center',
-        color: '#10a1ef',
-        fontWeight: 'bold',
-    },
-    errorStyle: {
-        color: 'red',
-        margin: 10
-    },
-    input: {
-        marginBottom: 10,
-    },
-    button: {
-        margin: 10,
-    },
-    signup: {
-        fontSize: 15,
-        textAlign: 'center',
-        marginTop: '10%'
-    },
-});

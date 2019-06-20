@@ -1,10 +1,10 @@
 import React from 'react';
 import {createStackNavigator, createAppContainer, createBottomTabNavigator} from "react-navigation";
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import {LoginScreen} from "./components/Login";
-import {HomeScreen} from "./components/Home";
-import {SignupScreen} from "./components/Signup";
-import {EditProfileScreen} from "./components/EditProfile";
+import {LoginScreen} from "../components/Login/Login";
+import {HomeScreen} from "../components/Home/Home";
+import {SignupScreen} from "../components/Signup/Signup";
+import {EditProfileScreen} from "../components/EditProfile/EditProfile";
 
 
 const BottonNavigator = createBottomTabNavigator({
@@ -18,7 +18,6 @@ const BottonNavigator = createBottomTabNavigator({
             let iconName;
             if (routeName === 'Home') {
                 iconName = `ios-home`;
-                console.log(iconName, focused);
             } else if (routeName === 'EditProfile') {
                 iconName = `ios-information-circle${focused ? '' : '-outline'}`;
             }

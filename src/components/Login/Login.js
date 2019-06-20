@@ -1,10 +1,13 @@
 import * as React from 'react';
-import {Text, View, StyleSheet} from "react-native";
+import {Text, View} from "react-native";
 import {useNavigation} from "react-navigation-hooks";
 import {Input, Button} from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
-import {apiEndPoint} from "../config";
+import {apiEndPoint, tokenName} from "../../constants";
 import Icon from 'react-native-vector-icons/FontAwesome';
+import {loginStyles} from "./loginCss";
+import {SIGNUP, HOME, EDITPROFILE} from "../../Navigation/navigationConstants";
+import {commonStyles} from "../../commonStyles";
 
 const emailRegx = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 
@@ -17,7 +20,7 @@ export const LoginScreen = () => {
     const [errMsg, setErrMsg] = React.useState('');
 
     const handleSignUp = () => {
-        navigate('Signup');
+        navigate(SIGNUP);
     };
 
     const handleLogin = () => {
@@ -39,9 +42,9 @@ export const LoginScreen = () => {
 
     const storeData = async (value) => {
         try {
-            await AsyncStorage.setItem('playToken', value);
+            await AsyncStorage.setItem(tokenName, value);
         } catch (e) {
-            console.log(e);
+            console.error(e);
         }
     };
 
@@ -63,9 +66,9 @@ export const LoginScreen = () => {
                     setPwd('');
                     console.log('password reset');
                     if (res.isProfileComplete) {
-                        navigate('Home');
+                        navigate(HOME);
                     } else {
-                        navigate('EditProfile');
+                        navigate(EDITPROFILE);
                     }
 
                 } else {
@@ -78,39 +81,41 @@ export const LoginScreen = () => {
     }
 
     React.useEffect(() => {
-        const response = AsyncStorage.getItem('playToken');
+        const response = AsyncStorage.getItem(tokenName);
         response.then(token => {
             if(token){
-               navigate('Home');
+               navigate(HOME);
             }
         })
     });
 
 
-    return (<View style={styles.container}>
-        <Text style={styles.heading}>Welcome to Play2Gether</Text>
-        <Text style={styles.login}>Login</Text>
+    return (<View style={loginStyles.container}>
+        <Text style={loginStyles.heading}>Welcome to Play2Gether</Text>
+        <Text style={loginStyles.login}>Login</Text>
         <Input
             placeholder={'Email'}
             leftIcon={
                 <Icon
+                    raised
+                    leftIconContainerStyle={commonStyles.p20}
                     name='envelope'
                     size={24}
                     color='gray'
                 />
             }
-            errorStyle={{color: 'red'}}
+            errorStyle={commonStyles.errorColor}
             errorMessage={unameErrMsg}
-            style={styles.input}
+            style={loginStyles.input}
             onChangeText={(text) => {
                 setUname(text);
             }}
         />
         <Input
             placeholder='Password'
-            errorStyle={{color: 'red'}}
+            errorStyle={commonStyles.errorColor}
             errorMessage={pwdErrMsg}
-            containerStyle={styles.input}
+            containerStyle={loginStyles.input}
             onChangeText={(text) => {
                 setPwd(text);
             }}
@@ -123,10 +128,10 @@ export const LoginScreen = () => {
             }
             secureTextEntry={true}
         />
-        <Text style={styles.forgot}>
+        <Text style={loginStyles.forgot}>
             Forgot Password?
         </Text>
-        <Text style={styles.error}>
+        <Text style={loginStyles.error}>
             {errMsg}
         </Text>
         <Button
@@ -135,53 +140,9 @@ export const LoginScreen = () => {
             title={'Login'}
             color={'blue'}
             onPress={handleLogin}
-            style={styles.button}
+            style={loginStyles.button}
         />
-        <Text style={styles.signup}>don't have account? <Text onPress={handleSignUp} style={{color: 'green'}}>Sign
+        <Text style={loginStyles.signup}>don't have account? <Text onPress={handleSignUp} style={{color: 'green'}}>Sign
             up</Text></Text>
     </View>)
 };
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        margin: 10
-    },
-    heading: {
-        fontSize: 25,
-        textAlign: 'center',
-        color: '#0dc67c',
-        fontWeight: 'bold',
-        marginTop: '30%',
-        marginBottom: '10%'
-    },
-    input: {},
-    forgot: {
-        textAlign: 'right',
-        color: 'blue',
-        margin: 10
-    },
-    signup: {
-        fontSize: 15,
-        textAlign: 'center',
-        marginTop: '10%'
-    },
-    button: {
-        marginTop: 20,
-        width: '90%',
-    },
-    error: {
-        color: 'red',
-        textAlign: 'center',
-        marginBottom: 10,
-        fontSize: 18
-    },
-    login: {
-        fontSize: 20,
-        textAlign: 'center',
-        color: '#10a1ef',
-        fontWeight: 'bold',
-    }
-});
