@@ -16,6 +16,9 @@ export const commonStyles = StyleSheet.create({
     mt10: {
       marginTop: 10
     },
+    m10: {
+      margin: 10
+    },
     pl5: {
         paddingLeft: 5
     },
@@ -33,5 +36,13 @@ export const commonStyles = StyleSheet.create({
     },
     errorColor: {
         color: 'red'
-    }
+    },
+    heading: {
+        fontSize: 20,
+        textAlign: 'center',
+        marginBottom: 20,
+        fontWeight: 'bold',
+        color: '#0dc67c',
+        marginTop: 20
+    },
 });

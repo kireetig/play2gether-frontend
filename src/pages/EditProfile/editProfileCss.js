@@ -5,13 +5,6 @@ export const editStyles = StyleSheet.create({
         padding: 10,
         paddingBottom: 30
     },
-    heading: {
-        fontSize: 20,
-        textAlign: 'center',
-        marginBottom: 10,
-        color: 'black',
-        fontWeight: 'bold'
-    },
     label: {
         fontSize: 16,
         fontWeight: 'bold',

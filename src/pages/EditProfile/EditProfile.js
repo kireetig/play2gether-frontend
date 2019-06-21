@@ -9,11 +9,11 @@ import {editStyles} from './editProfileCss';
 import {commonStyles} from "../../commonStyles";
 import {apiEndPoint, tokenName} from "../../constants";
 import {LOGIN} from "../../navigation/navigationConstants";
+import {Sports} from "../../components/Sports";
 
 export const EditProfileScreen = () => {
     const {navigate} = useNavigation();
     const [user, setUser] = React.useState({});
-    const [sports, setSports] = React.useState([]);
     const [selectedSports, setSelectedSports] = React.useState([]);
     const [favSports, setFavSports] = React.useState([]);
     const [rated, setRated] = React.useState(0);
@@ -41,12 +41,6 @@ export const EditProfileScreen = () => {
                     }
                 }
             }).catch(err => console.log(err));
-        })
-    };
-
-    const getSports = () => {
-        fetch(`${apiEndPoint}/sports/get`).then(res => res.json()).then(res => {
-            setSports(res.data);
         })
     };
 
@@ -122,27 +116,16 @@ export const EditProfileScreen = () => {
 
     React.useEffect(() => {
         getProfile();
-        getSports();
     }, []);
 
     return (
         <View style={editStyles.containerStyle}>
             <ScrollView style={commonStyles.pb20}>
-                <Text style={editStyles.heading}>My Profile</Text>
+                <Text style={commonStyles.heading}>My Profile</Text>
                 <Text style={editStyles.label}>Name : {user ? user.name : null}</Text>
                 <Text style={editStyles.label}>Email : {user ? user.email : null}</Text>
                 <Text style={editStyles.subHeading}>Favorite Sports</Text>
-                {sports.length > 0 ? <SectionedMultiSelect
-                    items={sports}
-                    uniqueKey='_id'
-                    selectText='Select Sports'
-                    showDropDowns={false}
-                    onSelectedItemsChange={onSelectedItemsChange}
-                    selectedItems={selectedSports}
-                    confirmText={'Select'}
-                    styles={{selectedItem: {color: 'blue'}}}
-                    colors={{chipColor: '#0000ff'}}
-                /> : null}
+                <Sports isSingle={false} onChange={onSelectedItemsChange} selectedSports={selectedSports} />
 
                 <Text style={editStyles.subHeading}>Rate yourself</Text>
                 <Text> Rate how proficient are you in your favorite sports</Text>
