@@ -5,7 +5,10 @@ import RNGooglePlaces from 'react-native-google-places';
 export const AutoComplete = (props) => {
 
     const openSearchModal = () => {
-        RNGooglePlaces.openAutocompleteModal()
+        console.log(props);
+        RNGooglePlaces.openAutocompleteModal({
+            country: props.country
+        })
             .then((place) => {
                 console.log(place);
                 // place represents user's selection from the
@@ -17,7 +20,7 @@ export const AutoComplete = (props) => {
     return (
         <Button
             onPress={() => openSearchModal()}
-            title={'click'}
+            title={'Select a Venue'}
         />
     );
 };

@@ -14,7 +14,6 @@ export const editStyles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
         marginTop: 20,
-        marginBottom: 5
     },
     button: {
         marginTop: 20,

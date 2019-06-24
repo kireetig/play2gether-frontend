@@ -1,6 +1,6 @@
 import React from 'react';
-import {Text, View, Button} from 'react-native';
-import {apiEndPoint} from "../constants";
+import {Text, View} from 'react-native';
+import {apiEndPoint, tokenName} from "../constants";
 import SectionedMultiSelect from "react-native-sectioned-multi-select";
 
 
@@ -14,13 +14,12 @@ export const Sports = (props) => {
     };
 
 
-
     React.useEffect(() => {
         getSports();
     }, []);
-    return (<View>
+    return (<View style={{marginTop: -30}}>
         <Text>{props.text}</Text>
-        <SectionedMultiSelect
+        {sports.length ? <SectionedMultiSelect
             single={props.isSingle}
             items={sports}
             uniqueKey='_id'
@@ -31,6 +30,7 @@ export const Sports = (props) => {
             confirmText={'Select'}
             styles={{selectedItem: {color: 'blue'}}}
             colors={{chipColor: '#0000ff'}}
-        />
+            loading={sports.length < 1}
+        /> : null}
     </View>)
 };

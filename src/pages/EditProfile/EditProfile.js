@@ -4,32 +4,41 @@ import {useNavigation} from 'react-navigation-hooks';
 import AsyncStorage from '@react-native-community/async-storage';
 import {Button} from "react-native-elements";
 import * as _ from 'lodash';
+import PhoneInput from 'react-native-phone-input'
 import SectionedMultiSelect from "react-native-sectioned-multi-select";
 import {editStyles} from './editProfileCss';
 import {commonStyles} from "../../commonStyles";
 import {apiEndPoint, tokenName} from "../../constants";
 import {LOGIN} from "../../navigation/navigationConstants";
 import {Sports} from "../../components/Sports";
+import CountryPicker from "react-native-country-picker-modal";
+import {getProfileUtil} from "../../utils/getProfile";
 
 export const EditProfileScreen = () => {
     const {navigate} = useNavigation();
+    let phone = React.useRef(null);
+    let countryPicker = React.useRef(null);
     const [user, setUser] = React.useState({});
     const [selectedSports, setSelectedSports] = React.useState([]);
     const [favSports, setFavSports] = React.useState([]);
     const [rated, setRated] = React.useState(0);
     const [ptoken, setToken] = React.useState(null);
+    const [cca2, setCca2] = React.useState('IN');
     const [msg, setMsg] = React.useState({message: '', color: 'red'});
+    const [phoneNumber, setPhoneNumber] = React.useState('');
 
     const getProfile = () => {
         const response = AsyncStorage.getItem(tokenName);
         response.then(token => {
             setToken(token);
-            fetch(`${apiEndPoint}/user/getProfile?token=${token}`).then(res => res.json()).then(res => {
+            getProfileUtil(token).then(res => {
                 if (res.status === 403) {
                     AsyncStorage.removeItem(tokenName);
                     navigate(LOGIN);
                 } else {
                     setUser(res.data);
+                    setCca2(res.data.country);
+                    setPhoneNumber(res.data.phoneNumber);
                     if (res.data.favSports.length) {
                         setFavSports(res.data.favSports);
                         const ids = [];
@@ -63,28 +72,34 @@ export const EditProfileScreen = () => {
     };
 
     const handleNext = () => {
-        setMsg({message: '', color: 'green'});
-        fetch(`${apiEndPoint}/user/editProfile?token=${ptoken}`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                ...user,
-                favSports: favSports,
-                isProfileComplete: true
-            }),
-        }).then(res => res.json()).then(res => {
-            if (res.status === 200) {
-                setMsg({message: 'Successfully Updated', color: 'green'});
-                setTimeout(() => {
-                    setMsg({message: '', color: 'green'});
-                }, 4000);
-            } else {
-                setMsg({message: res.error, color: 'red'});
-            }
-        }).catch(err => console.error(err));
+        setMsg({message: '', color: 'red'});
+        if (phone.isValidNumber()) {
+            fetch(`${apiEndPoint}/user/editProfile?token=${ptoken}`, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    ...user,
+                    favSports: favSports,
+                    isProfileComplete: true,
+                    phoneNumber: phone.getValue(),
+                    country: cca2
+                }),
+            }).then(res => res.json()).then(res => {
+                if (res.status === 200) {
+                    setMsg({message: 'Successfully Updated', color: 'green'});
+                    setTimeout(() => {
+                        setMsg({message: '', color: 'green'});
+                    }, 4000);
+                } else {
+                    setMsg({message: res.error, color: 'red'});
+                }
+            }).catch(err => console.error(err));
+        } else {
+            setMsg({message: 'Please enter valid number', color: 'red'})
+        }
     };
 
     const onRatingChange = (selectedItem, i) => {
@@ -114,6 +129,15 @@ export const EditProfileScreen = () => {
         }
     ];
 
+    function onPressFlag() {
+        countryPicker.openModal()
+    }
+
+    const selectCountry = (country) => {
+        phone.selectCountry(country.cca2.toLowerCase());
+        setCca2(country.cca2);
+    };
+
     React.useEffect(() => {
         getProfile();
     }, []);
@@ -124,8 +148,28 @@ export const EditProfileScreen = () => {
                 <Text style={commonStyles.heading}>My Profile</Text>
                 <Text style={editStyles.label}>Name : {user ? user.name : null}</Text>
                 <Text style={editStyles.label}>Email : {user ? user.email : null}</Text>
+                <PhoneInput
+                    ref={(ref) => {
+                        phone = ref;
+                    }}
+                    onPressFlag={onPressFlag}
+                    initialCountry={cca2.toLowerCase()}
+                    value={phoneNumber}
+                    style={commonStyles.mt10}
+                />
+                <CountryPicker
+                    ref={(ref) => {
+                        countryPicker = ref;
+                    }}
+                    onChange={(value) => selectCountry(value)}
+                    translation='eng'
+                    cca2={cca2}
+                >
+                    <View/>
+                </CountryPicker>
                 <Text style={editStyles.subHeading}>Favorite Sports</Text>
-                <Sports isSingle={false} onChange={onSelectedItemsChange} selectedSports={selectedSports} />
+
+                <Sports isSingle={false} onChange={onSelectedItemsChange} selectedSports={selectedSports}/>
 
                 <Text style={editStyles.subHeading}>Rate yourself</Text>
                 <Text> Rate how proficient are you in your favorite sports</Text>
