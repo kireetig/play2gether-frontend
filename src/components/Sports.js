@@ -1,14 +1,17 @@
 import React from 'react';
 import {Text, View} from 'react-native';
-import {apiEndPoint, tokenName} from "../constants";
+import {apiEndPoint} from "../constants";
 import SectionedMultiSelect from "react-native-sectioned-multi-select";
+import {useGlobalState} from '../../App';
 
 
 export const Sports = (props) => {
     const [sports, setSports] = React.useState([]);
+    const [value, update] = useGlobalState('sports');
 
     const getSports = () => {
         fetch(`${apiEndPoint}/sports/get`).then(res => res.json()).then(res => {
+            update(res.data);
             setSports(res.data);
         })
     };

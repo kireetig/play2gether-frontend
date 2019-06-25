@@ -49,7 +49,7 @@ export const EditProfileScreen = () => {
                         setSelectedSports(ids);
                     }
                 }
-            }).catch(err => console.log(err));
+            }).catch(err => console.error(err));
         })
     };
 

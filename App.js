@@ -1,10 +1,20 @@
-import React, {Component} from 'react';
+import React from 'react';
 import AppNavigator from "./src/navigation/navigation";
 
-export default class App extends Component {
-  render() {
+import {createGlobalState} from 'react-hooks-global-state';
+
+const initialState = {
+    profile: null,
+    sports: null,
+};
+export const {GlobalStateProvider, useGlobalState} = createGlobalState(initialState);
+
+
+export const App = () => {
+
     return (
-      <AppNavigator/>
+        <GlobalStateProvider>
+            <AppNavigator/>
+        </GlobalStateProvider>
     );
-  }
-}
+};

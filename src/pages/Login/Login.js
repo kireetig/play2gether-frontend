@@ -61,11 +61,9 @@ export const LoginScreen = () => {
                     password: pwd,
                 }),
             }).then(res => res.json()).then(async (res) => {
-                console.log(res);
                 if (res.status === 200) {
                     await storeData(res.token);
                     setPwd('');
-                    console.log('password reset');
                     if (res.isProfileComplete) {
                         navigate(HOME);
                     } else {
