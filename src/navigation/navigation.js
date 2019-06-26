@@ -7,6 +7,7 @@ import {EditProfileScreen} from "../pages/EditProfile/EditProfile";
 import {HostGameScreen} from "../pages/HostGame/HostGame";
 import {EDITPROFILE, HOME, HOSTGAME} from "./navigationConstants";
 import {LoginScreen} from "../pages/Login/Login";
+import {Text} from "react-native-elements";
 
 
 const BottonNavigator = createBottomTabNavigator({
@@ -28,9 +29,19 @@ const BottonNavigator = createBottomTabNavigator({
             }
             return <IconComponent name={iconName} size={25} color={tintColor}/>;
         },
+        tabBarLabel: ({focused}) => {
+            const {routeName} = navigation.state;
+            let name;
+            if(routeName === HOME){
+                name = 'Upcoming';
+            }else {
+                name = routeName;
+            }
+            return <Text style={{textAlign: 'center', color: focused?'#0dc67c': 'black'}}>{name}</Text>
+        }
     }),
     tabBarOptions: {
-        activeTintColor: '#42f44b',
+        activeTintColor: '#0dc67c',
         inactiveTintColor: 'gray',
         style: {
             backgroundColor: '#D3D3D3',

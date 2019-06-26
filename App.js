@@ -5,7 +5,7 @@ import {createGlobalState} from 'react-hooks-global-state';
 
 const initialState = {
     profile: null,
-    sports: null,
+    sports: [],
 };
 export const {GlobalStateProvider, useGlobalState} = createGlobalState(initialState);
 
