@@ -14,13 +14,16 @@ export const commonStyles = StyleSheet.create({
         marginRight: 10
     },
     mt10: {
-      marginTop: 10
+        marginTop: 10
     },
     m10: {
-      margin: 10
+        margin: 10
     },
-    mb10:{
-      marginBottom: 10
+    mb10: {
+        marginBottom: 10
+    },
+    m0: {
+        marginBottom: 0
     },
     pl5: {
         paddingLeft: 5
@@ -28,7 +31,7 @@ export const commonStyles = StyleSheet.create({
     pl10: {
         paddingLeft: 10
     },
-    pb20:{
+    pb20: {
         paddingBottom: 20
     },
     p20: {

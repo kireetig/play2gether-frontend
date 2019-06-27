@@ -8,7 +8,8 @@ export const editStyles = StyleSheet.create({
     label: {
         fontSize: 16,
         fontWeight: 'bold',
-        textTransform: 'uppercase'
+        textTransform: 'uppercase',
+        marginBottom: 2
     },
     subHeading: {
         fontSize: 18,

@@ -24,7 +24,7 @@ export const HostGameScreen = () => {
     const [place, setPlace] = React.useState(null);
     const [errMsg, setErrMsg] = React.useState('');
     const [description, setDescription] = React.useState('');
-    const [value, update] = useGlobalState('sports');
+    const [sports, updateSports] = useGlobalState('sports');
 
     const sportChange = selectedItem => {
         setSelectedSport(selectedItem)
@@ -52,7 +52,7 @@ export const HostGameScreen = () => {
         } else if (description.length < 5) {
             setErrMsg('Enter description, like number of players you will accept to join')
         } else {
-            const sport = _.find(value, {_id: selectedSport[0]});
+            const sport = _.find(sports, {_id: selectedSport[0]});
             const body = {
                 sportName: sport.name,
                 sportId: sport._id,

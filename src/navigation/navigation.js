@@ -33,7 +33,7 @@ const BottonNavigator = createBottomTabNavigator({
             const {routeName} = navigation.state;
             let name;
             if(routeName === HOME){
-                name = 'Upcoming';
+                name = 'Games';
             }else {
                 name = routeName;
             }

@@ -36,13 +36,11 @@ export const HomeScreen = () => {
     }, []);
 
     return (<ScrollView>
-        <Text style={homeStyles.heading}>Upcoming Games</Text>
         {Object.keys(games).map((key) => {
             const game = games[key];
             return (<View key={key}>
                 <Text style={[commonStyles.heading]}>{Capitalize(key)}</Text>
                 {game.map(item => {
-                    console.log(moment(item.gameDate).format('LL'));
                     return (<Card key={item._id}>
                         <Text style={commonStyles.fwbold}>Date: {moment(item.gameDate).format('LL HH:mm')}</Text>
                         <Text>Venue: {item.venue}</Text>

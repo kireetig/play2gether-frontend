@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 import {Button} from "react-native-elements";
 import * as _ from 'lodash';
 import PhoneInput from 'react-native-phone-input'
-import SectionedMultiSelect from "react-native-sectioned-multi-select";
+import MultiSelect from 'react-native-multiple-select';
 import {editStyles} from './editProfileCss';
 import {commonStyles} from "../../commonStyles";
 import {apiEndPoint, tokenName} from "../../constants";
@@ -13,6 +13,7 @@ import {LOGIN} from "../../navigation/navigationConstants";
 import {Sports} from "../../components/Sports";
 import CountryPicker from "react-native-country-picker-modal";
 import {getProfileUtil} from "../../utils/getProfile";
+import {useGlobalState} from "../../../App";
 
 export const EditProfileScreen = () => {
     const {navigate} = useNavigation();
@@ -23,9 +24,10 @@ export const EditProfileScreen = () => {
     const [favSports, setFavSports] = React.useState([]);
     const [rated, setRated] = React.useState(0);
     const [ptoken, setToken] = React.useState(null);
-    const [cca2, setCca2] = React.useState('IN');
+    const [cca2, setCca2] = React.useState('in');
     const [msg, setMsg] = React.useState({message: '', color: 'red'});
     const [phoneNumber, setPhoneNumber] = React.useState('');
+    const [sports, updateSports] = useGlobalState('sports');
 
     const getProfile = () => {
         const response = AsyncStorage.getItem(tokenName);
@@ -37,8 +39,10 @@ export const EditProfileScreen = () => {
                     navigate(LOGIN);
                 } else {
                     setUser(res.data);
-                    setCca2(res.data.country);
-                    setPhoneNumber(res.data.phoneNumber);
+                    if (res.data.country) {
+                        setCca2(res.data.country.toLowerCase());
+                        setPhoneNumber(res.data.phoneNumber);
+                    }
                     if (res.data.favSports.length) {
                         setFavSports(res.data.favSports);
                         const ids = [];
@@ -153,7 +157,7 @@ export const EditProfileScreen = () => {
                         phone = ref;
                     }}
                     onPressFlag={onPressFlag}
-                    initialCountry={cca2.toLowerCase()}
+                    initialCountry={cca2}
                     value={phoneNumber}
                     style={commonStyles.mt10}
                 />
@@ -175,8 +179,8 @@ export const EditProfileScreen = () => {
                 <Text> Rate how proficient are you in your favorite sports</Text>
                 {favSports.map((sport, index) => {
                     return (<View key={sport._id} style={commonStyles.mt10}>
-                        <Text style={editStyles.label}> {sport.name} </Text>
-                        <SectionedMultiSelect
+                        <Text style={[editStyles.label]}> {sport.name} </Text>
+                        <MultiSelect
                             items={ratings}
                             uniqueKey='score'
                             single={true}
