@@ -62,5 +62,9 @@ export const commonStyles = StyleSheet.create({
     },
     textCenter: {
         textAlign: 'center'
+    },
+    dFlex: {
+        flex: 1,
+        flexDirection: 'row'
     }
 });

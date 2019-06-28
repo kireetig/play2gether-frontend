@@ -8,10 +8,18 @@ import {HostGameScreen} from "../pages/HostGame/HostGame";
 import {EDITPROFILE, HOME, HOSTGAME} from "./navigationConstants";
 import {LoginScreen} from "../pages/Login/Login";
 import {Text} from "react-native-elements";
+import {GameDetailsScreen} from "../pages/GameDetails/GameDetails";
 
+const GameNavigator = createStackNavigator({
+    Home: HomeScreen,
+    GameDetails: GameDetailsScreen
+}, {
+    initialRouteName: 'Home',
+    headerMode: 'none',
+});
 
 const BottonNavigator = createBottomTabNavigator({
-    Home: HomeScreen,
+    Home: GameNavigator,
     EditProfile: EditProfileScreen,
     HostGame: HostGameScreen
 }, {
@@ -24,7 +32,7 @@ const BottonNavigator = createBottomTabNavigator({
                 iconName = `ios-home`;
             } else if (routeName === EDITPROFILE) {
                 iconName = `ios-information-circle${focused ? '' : '-outline'}`;
-            } else if (routeName === HOSTGAME){
+            } else if (routeName === HOSTGAME) {
                 iconName = 'ios-football';
             }
             return <IconComponent name={iconName} size={25} color={tintColor}/>;
@@ -32,12 +40,12 @@ const BottonNavigator = createBottomTabNavigator({
         tabBarLabel: ({focused}) => {
             const {routeName} = navigation.state;
             let name;
-            if(routeName === HOME){
+            if (routeName === HOME) {
                 name = 'Games';
-            }else {
+            } else {
                 name = routeName;
             }
-            return <Text style={{textAlign: 'center', color: focused?'#0dc67c': 'black'}}>{name}</Text>
+            return <Text style={{textAlign: 'center', color: focused ? '#0dc67c' : 'black'}}>{name}</Text>
         }
     }),
     tabBarOptions: {

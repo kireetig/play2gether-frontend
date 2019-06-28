@@ -5,26 +5,27 @@ import {hostGameStyles} from "./hostGameCss";
 import {commonStyles} from "../../commonStyles";
 import {Sports} from "../../components/Sports";
 import {AutoComplete} from "../../components/AutoComplete";
-import AsyncStorage from '@react-native-community/async-storage';
 import {apiEndPoint, tokenName} from "../../constants";
-import {getProfileUtil} from "../../utils/getProfile";
-import {EDITPROFILE, HOME, LOGIN} from "../../navigation/navigationConstants";
+import {HOME, LOGIN} from "../../navigation/navigationConstants";
 import DateTimePicker from "react-native-modal-datetime-picker";
 import moment from 'moment';
 import * as _ from 'lodash';
 import {useGlobalState} from '../../../App';
+import {getGamesUtil} from "../../utils/getGames";
+import AsyncStorage from "@react-native-community/async-storage";
 
 export const HostGameScreen = () => {
     const {navigate} = useNavigation();
     const [selectedSport, setSelectedSport] = React.useState([]);
-    const [token, setToken] = React.useState(null);
-    const [profile, setProfile] = React.useState(null);
+    const [token] = useGlobalState('token');
+    const [profile] = useGlobalState('profile');
     const [datePickerVisibility, setDatePickerVisibility] = React.useState(false);
     const [date, setDate] = React.useState(null);
     const [place, setPlace] = React.useState(null);
     const [errMsg, setErrMsg] = React.useState('');
     const [description, setDescription] = React.useState('');
-    const [sports, updateSports] = useGlobalState('sports');
+    const [sports] = useGlobalState('sports');
+    const [, setGames] = useGlobalState('games');
 
     const sportChange = selectedItem => {
         setSelectedSport(selectedItem)
@@ -40,6 +41,18 @@ export const HostGameScreen = () => {
 
     const handleDatePicked = date => {
         setDate(date);
+    };
+
+    const getGames = () => {
+        getGamesUtil(token).then(res => {
+            if (res.status === 200) {
+                const games = _.groupBy(res.data, 'sportName');
+                setGames(games);
+            } else if (res.status === 403) {
+                AsyncStorage.removeItem(tokenName);
+                navigate(LOGIN);
+            }
+        });
     };
 
     const hostGame = async () => {
@@ -62,6 +75,7 @@ export const HostGameScreen = () => {
                 description: description,
                 hostId: profile._id,
                 hostName: profile.name,
+                placeId: place.placeID
             };
             await fetch(`${apiEndPoint}/game/host?token=${token}`, {
                 method: 'POST',
@@ -72,6 +86,7 @@ export const HostGameScreen = () => {
                 body: JSON.stringify(body),
             }).then(res => res.json()).then(async (res) => {
                 if (res.status === 200) {
+                    getGames();
                     navigate(HOME);
                 } else {
                     setErrMsg(res.message);
@@ -79,20 +94,6 @@ export const HostGameScreen = () => {
             }).catch(res => console.error(res));
         }
     };
-
-    React.useEffect(() => {
-        AsyncStorage.getItem(tokenName).then(token => {
-            getProfileUtil(token).then(res => {
-                if (res.status === 200) {
-                    setProfile(res.data);
-                } else if (res.status === 403) {
-                    AsyncStorage.removeItem(tokenName);
-                    navigate(LOGIN);
-                }
-            });
-            setToken(token);
-        });
-    }, []);
 
 
     return (<View style={commonStyles.m10}>

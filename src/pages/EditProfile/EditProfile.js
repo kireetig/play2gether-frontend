@@ -1,60 +1,45 @@
 import * as React from 'react';
 import {Text, View, ScrollView} from 'react-native';
 import {useNavigation} from 'react-navigation-hooks';
-import AsyncStorage from '@react-native-community/async-storage';
 import {Button} from "react-native-elements";
 import * as _ from 'lodash';
 import PhoneInput from 'react-native-phone-input'
 import MultiSelect from 'react-native-multiple-select';
 import {editStyles} from './editProfileCss';
 import {commonStyles} from "../../commonStyles";
-import {apiEndPoint, tokenName} from "../../constants";
-import {LOGIN} from "../../navigation/navigationConstants";
+import {apiEndPoint} from "../../constants";
 import {Sports} from "../../components/Sports";
 import CountryPicker from "react-native-country-picker-modal";
-import {getProfileUtil} from "../../utils/getProfile";
 import {useGlobalState} from "../../../App";
 
 export const EditProfileScreen = () => {
     const {navigate} = useNavigation();
     let phone = React.useRef(null);
     let countryPicker = React.useRef(null);
-    const [user, setUser] = React.useState({});
     const [selectedSports, setSelectedSports] = React.useState([]);
     const [favSports, setFavSports] = React.useState([]);
     const [rated, setRated] = React.useState(0);
-    const [ptoken, setToken] = React.useState(null);
+    const [ptoken] = useGlobalState('token');
     const [cca2, setCca2] = React.useState('in');
     const [msg, setMsg] = React.useState({message: '', color: 'red'});
     const [phoneNumber, setPhoneNumber] = React.useState('');
-    const [sports, updateSports] = useGlobalState('sports');
+    const [sports] = useGlobalState('sports');
+    const [profile] = useGlobalState('profile');
 
     const getProfile = () => {
-        const response = AsyncStorage.getItem(tokenName);
-        response.then(token => {
-            setToken(token);
-            getProfileUtil(token).then(res => {
-                if (res.status === 403) {
-                    AsyncStorage.removeItem(tokenName);
-                    navigate(LOGIN);
-                } else {
-                    setUser(res.data);
-                    if (res.data.country) {
-                        setCca2(res.data.country.toLowerCase());
-                        setPhoneNumber(res.data.phoneNumber);
-                    }
-                    if (res.data.favSports.length) {
-                        setFavSports(res.data.favSports);
-                        const ids = [];
-                        res.data.favSports.forEach(sport => {
-                            ids.push(sport._id);
-                            setRated(rate => rate + 1);
-                        });
-                        setSelectedSports(ids);
-                    }
-                }
-            }).catch(err => console.error(err));
-        })
+        if (profile.country) {
+            setCca2(profile.country.toLowerCase());
+            setPhoneNumber(profile.phoneNumber);
+        }
+        if (profile.favSports.length) {
+            setFavSports(profile.favSports);
+            const ids = [];
+            profile.favSports.forEach(sport => {
+                ids.push(sport._id);
+                setRated(rate => rate + 1);
+            });
+            setSelectedSports(ids);
+        }
     };
 
     const onSelectedItemsChange = selectedItems => {
@@ -85,7 +70,7 @@ export const EditProfileScreen = () => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    ...user,
+                    ...profile,
                     favSports: favSports,
                     isProfileComplete: true,
                     phoneNumber: phone.getValue(),
@@ -150,8 +135,8 @@ export const EditProfileScreen = () => {
         <View style={editStyles.containerStyle}>
             <ScrollView style={commonStyles.pb20}>
                 <Text style={commonStyles.heading}>My Profile</Text>
-                <Text style={editStyles.label}>Name : {user ? user.name : null}</Text>
-                <Text style={editStyles.label}>Email : {user ? user.email : null}</Text>
+                <Text style={editStyles.label}>Name : {profile ? profile.name : null}</Text>
+                <Text style={editStyles.label}>Email : {profile ? profile.email : null}</Text>
                 <PhoneInput
                     ref={(ref) => {
                         phone = ref;

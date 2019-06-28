@@ -8,6 +8,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import {loginStyles} from "./loginCss";
 import {SIGNUP, HOME, EDITPROFILE} from "../../navigation/navigationConstants";
 import {commonStyles} from "../../commonStyles";
+import {useGlobalState} from "../../../App";
 
 const emailRegx = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 
@@ -18,6 +19,7 @@ export const LoginScreen = () => {
     const [pwd, setPwd] = React.useState('');
     const [uname, setUname] = React.useState('');
     const [errMsg, setErrMsg] = React.useState('');
+    const [, setToken] = useGlobalState('token');
 
     const handleSignUp = () => {
         navigate(SIGNUP);
@@ -43,6 +45,7 @@ export const LoginScreen = () => {
     const storeData = async (value) => {
         try {
             await AsyncStorage.setItem(tokenName, value);
+            setToken(value);
         } catch (e) {
             console.error(e);
         }
@@ -82,11 +85,12 @@ export const LoginScreen = () => {
     React.useEffect(() => {
         const response = AsyncStorage.getItem(tokenName);
         response.then(token => {
-            if(token){
-               navigate(HOME);
+            if (token) {
+                setToken(token);
+                navigate(HOME);
             }
-        })
-    });
+        });
+    }, []);
 
 
     return (<View style={loginStyles.container}>
