@@ -1,37 +1,45 @@
 import React from 'react';
-import {View, Text, ScrollView, TouchableOpacity, Linking, Alert, TextInput} from 'react-native';
-import {Button, Icon, Overlay} from 'react-native-elements'
-import {HOME} from "../../navigation/navigationConstants";
+import {View, Text, ScrollView, TouchableOpacity, Linking, Alert, TextInput, Button} from 'react-native';
+import {Icon, Overlay} from 'react-native-elements';
 import {useNavigation} from "react-navigation-hooks";
+import moment from "moment";
+import * as _ from 'lodash';
+import {HOME} from "../../navigation/navigationConstants";
 import {commonStyles} from "../../commonStyles";
 import {detailStyles} from "./gameDetailsCss";
 import {useGlobalState} from "../../../App";
-import moment from "moment";
 import {hostGameStyles} from "../HostGame/hostGameCss";
-import {apiEndPoint} from "../../constants";
+import {apiEndPoint, ratings} from "../../constants";
 
 export const GameDetailsScreen = () => {
     const {navigate} = useNavigation();
-    const [details] = useGlobalState('gameDetails');
+    const [details, setDetails] = useGlobalState('gameDetails');
     const [profile] = useGlobalState('profile');
     const [token] = useGlobalState('token');
     const [modalVisible, setModalVisible] = React.useState(false);
     const [message, setMessage] = React.useState('');
+    const [showRequests, setShowRequest] = React.useState(false);
+    const [, updateState] = React.useState();
 
     const toggleModal = () => {
         setModalVisible(modal => !modal);
     };
 
-    const sendRequest = () => {
+    const toggleRequests = () => {
+        setShowRequest(request => !request);
+    };
+
+    const sendRequest = (isRequest) => {
+        const i = _.findIndex(profile.favSports, {_id: details.sportId});
         const body = {
             _id: profile._id,
             name: profile.name,
-            selfRatingScore: profile.selfRatingScore,
-            userRatingScore: profile.userRatingScore,
+            selfRatingScore: i !== -1 ? profile.favSports[i].selfRatingScore : null,
+            userRatingScore: i !== -1 ? profile.favSports[i].userRatingScore : null,
             message: message
         };
-        console.log(body, details._id);
-        fetch(`${apiEndPoint}/game/request?token=${token}&gameId=${details._id}`, {
+        const url = isRequest ? 'request' : 'unrequest';
+        fetch(`${apiEndPoint}/game/${url}?token=${token}&gameId=${details._id}`, {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',
@@ -39,9 +47,17 @@ export const GameDetailsScreen = () => {
             },
             body: JSON.stringify(body),
         }).then(res => res.json()).then(res => {
-            console.log(res);
             if (res.status === 200) {
-                toggleModal();
+                if (isRequest) {
+                    toggleModal();
+                    details.requests.push(body);
+                }else{
+                    const reqI = _.findIndex(details.requests, {_id: body._id});
+                    details.requests.splice(reqI, 1);
+                }
+                setDetails(details);
+                getButtons();
+                updateState({});
             }
         })
     };
@@ -66,6 +82,62 @@ export const GameDetailsScreen = () => {
         const url = `https://www.google.com/maps/search/?api=1&query=${details.venue}&query_place_id=${details.placeId}`;
         openExternalApp(url);
     };
+
+    const getButtons = () => {
+        let buttons = [];
+        if (profile._id !== details.hostId) {
+            const requestIndex = _.findIndex(details.requests, {_id: profile._id});
+            if (requestIndex === -1) {
+                buttons = [{
+                    name: 'Request to Join',
+                    handler: () => toggleModal(),
+                    color: ''
+                }];
+            } else {
+                if (details.requests[requestIndex].isAccepted) {
+                    buttons = [{
+                        name: 'Leave',
+                        color: 'red',
+                        handler: () => sendRequest(false)
+                    }, {
+                        name: 'Message',
+                        color: 'green',
+                        handler: () => console.log('Message')
+                    }]
+                } else {
+                    buttons = [{
+                        name: 'Retract Request',
+                        handler: () => sendRequest(false)
+                    }];
+                }
+            }
+        } else {
+            buttons = [
+                {
+                    name: 'Edit',
+                    handler: () => console.log('edit'),
+                    color: 'orange'
+                }, {
+                    name: 'Requests',
+                    handler: () => toggleRequests(),
+                    color: 'blue'
+                }, {
+                    name: 'Message',
+                    handler: () => console.log('Message'),
+                    color: 'green'
+                }, {
+                    name: 'Delete',
+                    handler: () => console.log('Delete'),
+                    color: 'red'
+                }];
+        }
+        return <View style={detailStyles.container}>
+            {buttons.map(button => <View style={detailStyles.buttonContainer} key={button.name}>
+                <Button title={button.name} onPress={button.handler} color={button.color}/>
+            </View>)}
+        </View>;
+    };
+
 
     return (
         <ScrollView>
@@ -108,8 +180,21 @@ export const GameDetailsScreen = () => {
                 })}
             </View>
             <View style={[detailStyles.mt30]}>
-                <Button title={'Request to Join'} onPress={toggleModal}/>
+                {getButtons()}
             </View>
+            {showRequests ? <View style={commonStyles.m10}>
+                {details.requests.length === 0 ? <Text>No Requests yet</Text> :
+                    details.requests.map(person => {
+                        return <View key={person._id}>
+                            <Text style={commonStyles.fwbold}>Name: {person.name}</Text>
+                            <Text>User Rating: {ratings[person.userRatingScore]}</Text>
+                            <Text>Self Rating: {ratings[person.selfRatingScore]}</Text>
+                            <Text>Message: {person.message}</Text>
+                            {person.isAccepted ? <Button title={'Remove'}/> : <Button title={'Accept'}/>}
+                        </View>
+                    })}
+
+            </View> : null}
             <Overlay
                 isVisible={modalVisible}
                 height={200}
@@ -120,13 +205,13 @@ export const GameDetailsScreen = () => {
                     flex: 1,
                     justifyContent: 'center'
                 }}>
-                    <Text style={commonStyles.fwbold}>Message to host</Text>
+                    <Text style={commonStyles.fwbold}>Message to host (optional)</Text>
                     <TextInput
                         style={hostGameStyles.description}
                         multiline={false}
                         onChangeText={input => setMessage(input)}
                     />
-                    <Button title={'Send Request'} onPress={sendRequest}/>
+                    <Button title={'Send Request'} onPress={() => sendRequest(true)}/>
                 </View>
             </Overlay>
         </ScrollView>

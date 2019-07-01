@@ -27,6 +27,7 @@ export const HomeScreen = () => {
 
     const gotoDetails = item => {
         setGameDetails(item);
+        console.log(item);
         navigate(GAMEDETAILS)
     };
 

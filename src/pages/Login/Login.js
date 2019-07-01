@@ -9,6 +9,7 @@ import {loginStyles} from "./loginCss";
 import {SIGNUP, HOME, EDITPROFILE} from "../../navigation/navigationConstants";
 import {commonStyles} from "../../commonStyles";
 import {useGlobalState} from "../../../App";
+import {getProfileUtil} from "../../utils/getProfile";
 
 const emailRegx = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
 
@@ -20,6 +21,7 @@ export const LoginScreen = () => {
     const [uname, setUname] = React.useState('');
     const [errMsg, setErrMsg] = React.useState('');
     const [, setToken] = useGlobalState('token');
+    const [, setProfile] = useGlobalState('profile');
 
     const handleSignUp = () => {
         navigate(SIGNUP);
@@ -70,6 +72,7 @@ export const LoginScreen = () => {
                     if (res.isProfileComplete) {
                         navigate(HOME);
                     } else {
+                        getProfileUtil(res.token).then(res => setProfile(res.data));
                         navigate(EDITPROFILE);
                     }
 

@@ -11,7 +11,8 @@ export const detailStyles = StyleSheet.create({
         zIndex: 1
     },
     requestContainer: {
-        marginTop: 30
+        marginTop: 30,
+        marginLeft: 10
     },
     label: {
         fontWeight: 'bold',
@@ -19,5 +20,16 @@ export const detailStyles = StyleSheet.create({
     },
     mt30: {
         marginTop: 30
+    },
+    container: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: 10
+    },
+    buttonContainer: {
+        flex: 1,
+        margin: 2.5
     }
 });

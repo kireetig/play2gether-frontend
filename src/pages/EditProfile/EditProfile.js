@@ -7,13 +7,12 @@ import PhoneInput from 'react-native-phone-input'
 import MultiSelect from 'react-native-multiple-select';
 import {editStyles} from './editProfileCss';
 import {commonStyles} from "../../commonStyles";
-import {apiEndPoint} from "../../constants";
+import {apiEndPoint, ratings} from "../../constants";
 import {Sports} from "../../components/Sports";
 import CountryPicker from "react-native-country-picker-modal";
 import {useGlobalState} from "../../../App";
 
 export const EditProfileScreen = () => {
-    const {navigate} = useNavigation();
     let phone = React.useRef(null);
     let countryPicker = React.useRef(null);
     const [selectedSports, setSelectedSports] = React.useState([]);
@@ -24,7 +23,7 @@ export const EditProfileScreen = () => {
     const [msg, setMsg] = React.useState({message: '', color: 'red'});
     const [phoneNumber, setPhoneNumber] = React.useState('');
     const [sports] = useGlobalState('sports');
-    const [profile] = useGlobalState('profile');
+    const [profile, setProfile] = useGlobalState('profile');
 
     const getProfile = () => {
         if (profile.country) {
@@ -63,21 +62,23 @@ export const EditProfileScreen = () => {
     const handleNext = () => {
         setMsg({message: '', color: 'red'});
         if (phone.isValidNumber()) {
+            const newProfile = {
+                ...profile,
+                favSports: favSports,
+                isProfileComplete: true,
+                phoneNumber: phone.getValue(),
+                country: cca2
+            };
             fetch(`${apiEndPoint}/user/editProfile?token=${ptoken}`, {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    ...profile,
-                    favSports: favSports,
-                    isProfileComplete: true,
-                    phoneNumber: phone.getValue(),
-                    country: cca2
-                }),
+                body: JSON.stringify(profile),
             }).then(res => res.json()).then(res => {
                 if (res.status === 200) {
+                    setProfile(newProfile);
                     setMsg({message: 'Successfully Updated', color: 'green'});
                     setTimeout(() => {
                         setMsg({message: '', color: 'green'});
@@ -98,25 +99,6 @@ export const EditProfileScreen = () => {
         setFavSports(fav);
         setRated(rate => rate + 1);
     };
-
-    const ratings = [
-        {
-            name: 'beginner',
-            score: 1,
-        }, {
-            name: 'amateur',
-            score: 2,
-        }, {
-            name: 'intermediate',
-            score: 3
-        }, {
-            name: 'advanced',
-            score: 4
-        }, {
-            name: 'professional',
-            score: 5
-        }
-    ];
 
     function onPressFlag() {
         countryPicker.openModal()
