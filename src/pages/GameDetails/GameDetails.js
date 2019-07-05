@@ -4,7 +4,7 @@ import {Icon, Overlay} from 'react-native-elements';
 import {useNavigation} from "react-navigation-hooks";
 import moment from "moment";
 import * as _ from 'lodash';
-import {HOME} from "../../navigation/navigationConstants";
+import {CHAT, HOME} from "../../navigation/navigationConstants";
 import {commonStyles} from "../../commonStyles";
 import {detailStyles} from "./gameDetailsCss";
 import {useGlobalState} from "../../../App";
@@ -123,7 +123,7 @@ export const GameDetailsScreen = () => {
                     color: 'blue'
                 }, {
                     name: 'Message',
-                    handler: () => console.log('Message'),
+                    handler: () => navigate(CHAT),
                     color: 'green'
                 }, {
                     name: 'Delete',

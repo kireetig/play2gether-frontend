@@ -9,10 +9,12 @@ import {EDITPROFILE, HOME, HOSTGAME} from "./navigationConstants";
 import {LoginScreen} from "../pages/Login/Login";
 import {Text} from "react-native-elements";
 import {GameDetailsScreen} from "../pages/GameDetails/GameDetails";
+import {ChatScreen} from "../pages/Chat/Chat";
 
 const GameNavigator = createStackNavigator({
     Home: HomeScreen,
-    GameDetails: GameDetailsScreen
+    GameDetails: GameDetailsScreen,
+    Chat: ChatScreen,
 }, {
     initialRouteName: 'Home',
     headerMode: 'none',
