@@ -45,9 +45,26 @@ export const chatCss = StyleSheet.create({
         color: '#2c2e30'
     },
     userBox: {
-        backgroundColor: '#07e6e6'
+        alignSelf: 'flex-end',
+        backgroundColor: '#07e6e6',
+        width: '75%',
     },
     normalBox: {
-        backgroundColor: 'grey'
+        backgroundColor: '#c0d2f0',
+        width: '75%',
+        alignItems: 'flex-start'
+    },
+    label: {
+        fontWeight: 'bold',
+        marginBottom:10,
+        color: '#7d4c1b'
+    },
+    time: {
+        color: '#3d3d3d',
+        marginLeft: 10,
+    },
+    end: {
+        alignSelf: 'flex-end',
+        marginRight: 20
     }
 });

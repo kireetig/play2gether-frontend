@@ -66,20 +66,23 @@ export const ChatScreen = () => {
             </TouchableOpacity>
             <Text style={[commonStyles.heading, chatCss.w80]}>Game Messages</Text>
         </View>
-        <ScrollView style={{marginBottom: 100, zIndex: 1, marginTop: 70}}
-                    ref={ref => scrollView = ref}
-                    onContentSizeChange={() => {
-                        scrollView.scrollToEnd({animated: true});
-                    }}
+        <ScrollView
+            style={{marginBottom: 100, zIndex: 1, marginTop: 70}}
+            ref={ref => scrollView = ref}
+            onContentSizeChange={() => {
+                scrollView.scrollToEnd({animated: true});
+            }}
         >
             {messages.map(message => {
-                console.log(message.senderId == profile._id);
-                return <Card key={message._id}
-                             style={message.senderId == profile._id ? {backgroundColor: 'blue'}: ''}>
-                    <Text>{message.senderName}</Text>
-                    <Text>{message.message}</Text>
-                    <Text>{moment(message.timestamp).format('LL HH:mm:ss')}</Text>
-                </Card>
+                return (<View key={message._id}>
+                    <Card containerStyle={message.senderId === profile._id ? chatCss.userBox : chatCss.normalBox}>
+                        <Text style={chatCss.label}>{message.senderName}</Text>
+                        <Text>{message.message}</Text>
+                    </Card>
+                    <Text style={[chatCss.time, message.senderId === profile._id ? chatCss.end : '']}>{
+                        moment(message.timestamp).format('LL HH:mm:ss')}
+                    </Text>
+                </View>)
             })}
         </ScrollView>
         <View style={chatCss.searchSection}>
