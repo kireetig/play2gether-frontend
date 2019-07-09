@@ -27,7 +27,6 @@ export const HomeScreen = () => {
 
     const gotoDetails = item => {
         setGameDetails(item);
-        console.log(item);
         navigate(GAMEDETAILS)
     };
 
@@ -69,6 +68,10 @@ export const HomeScreen = () => {
             />
         }
         >
+            <Text style={commonStyles.heading}>Games hosted</Text>
+            {Object.keys(games).length === 0 ?
+            <Text style={[commonStyles.fwbold, commonStyles.textCenter, commonStyles.fs18, commonStyles.mt10]}> No Games
+                hosted </Text> : null}
             {Object.keys(games).map((key) => {
                 const game = games[key];
                 return (<View key={key}>

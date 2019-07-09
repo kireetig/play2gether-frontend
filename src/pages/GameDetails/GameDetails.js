@@ -4,12 +4,14 @@ import {Icon, Overlay} from 'react-native-elements';
 import {useNavigation} from "react-navigation-hooks";
 import moment from "moment";
 import * as _ from 'lodash';
-import {CHAT, HOME, HOSTGAME} from "../../navigation/navigationConstants";
+import {CHAT, HOME, HOSTGAME, LOGIN} from "../../navigation/navigationConstants";
 import {commonStyles} from "../../commonStyles";
 import {detailStyles} from "./gameDetailsCss";
 import {useGlobalState} from "../../../App";
 import {hostGameStyles} from "../HostGame/hostGameCss";
-import {apiEndPoint, ratings} from "../../constants";
+import {apiEndPoint, ratings, tokenName} from "../../constants";
+import {getGamesUtil} from "../../utils/getGames";
+import AsyncStorage from "@react-native-community/async-storage";
 
 export const GameDetailsScreen = () => {
     const {navigate} = useNavigation();
@@ -20,6 +22,7 @@ export const GameDetailsScreen = () => {
     const [modalVisible, setModalVisible] = React.useState(false);
     const [message, setMessage] = React.useState('');
     const [showRequests, setShowRequest] = React.useState(false);
+    const [, setGames] = useGlobalState('games');
     const [, updateState] = React.useState();
 
     const toggleModal = () => {
@@ -104,6 +107,29 @@ export const GameDetailsScreen = () => {
         navigate(HOSTGAME);
     };
 
+    const getGames = () => {
+        getGamesUtil(token).then(res => {
+            if (res.status === 200) {
+                const games = _.groupBy(res.data, 'sportName');
+                setGames(games);
+                navigate(HOME);
+            } else if (res.status === 403) {
+                AsyncStorage.removeItem(tokenName);
+                navigate(LOGIN);
+            }
+        });
+    };
+
+    const deleteGame = () => {
+        fetch(`${apiEndPoint}/game/delete?gameId=${details._id}&token=${token}`, {
+            method: 'DELETE'
+        }).then(res => res.json()).then((res) => {
+            if (res.status === 200) {
+                getGames();
+            }
+        })
+    };
+
     const getButtons = () => {
         let buttons = [];
         if (profile._id !== details.hostId) {
@@ -148,7 +174,15 @@ export const GameDetailsScreen = () => {
                     color: 'green'
                 }, {
                     name: 'Delete',
-                    handler: () => console.log('Delete'),
+                    handler: () => Alert.alert(
+                        'Delete',
+                        'Are you sure, you want to delete this game?',
+                        [{
+                            text: 'Yes', onPress: () => deleteGame()
+                        },{
+                            text: 'Cancel'
+                        }]
+                    ),
                     color: 'red'
                 }];
         }
