@@ -3,12 +3,16 @@ import {Text, View, ScrollView, TouchableOpacity} from 'react-native';
 import {useNavigation} from 'react-navigation-hooks';
 import {Card} from "react-native-elements";
 import moment from "moment";
+import io from 'socket.io-client';
 import {commonStyles} from "../../commonStyles";
 import {useGlobalState} from '../../../App';
 import {apiEndPoint} from "../../constants";
 import {TextInput} from "react-native-paper";
 import {chatCss} from "./chatCss";
 import Icon from 'react-native-vector-icons/FontAwesome';
+import {GAMEDETAILS} from "../../navigation/navigationConstants";
+
+let socket;
 
 export const ChatScreen = () => {
     const {navigate} = useNavigation();
@@ -21,49 +25,57 @@ export const ChatScreen = () => {
     let scrollView = React.useRef('');
 
     const sendMessage = () => {
-        fetch(`${apiEndPoint}/game/message?token=${token}&gameId=${gameDetails._id}`, {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
+        if (typeMessage.length > 0) {
+            const msg = JSON.stringify({
                 message: typeMessage,
                 senderName: profile.name,
+                senderId: profile._id,
                 timestamp: moment()
-            }),
-        }).then(res => res.json()).then(res => {
-            console.log(res);
-            if(res.status === 200){
-                inputRef.clear();
-                inputRef.blur();
-            }
-
-        });
-
+            });
+            inputRef.clear();
+            socket.emit("new message", msg);
+        }
     };
 
-    React.useEffect(() => {
-        fetch(`${apiEndPoint}/game/message?token=${token}&gameId=${gameDetails._id}`)
+    const getMessages = () => {
+        fetch(`${apiEndPoint}/game/message?token=${token}&gameId=${gameDetails._id}&userId=${profile._id}`)
             .then(res => res.json()).then(res => {
             if (res.status === 200) {
-                console.log(res);
                 setMessages(res.result);
             } else {
                 navigate('Login');
             }
         });
+    };
+
+
+    React.useEffect(() => {
+        socket = io(`${apiEndPoint}?gameId=${gameDetails._id}`);
+        getMessages();
+        socket.on("game news", (data) => {
+            if (data.status === 200) {
+                getMessages();
+            }
+        })
     }, []);
 
     return (<View style={{flex: 1}}>
-        <Text style={commonStyles.heading}>Game Messages</Text>
-        <ScrollView style={{marginBottom: 100}}
+        <View style={[chatCss.top]}>
+            <TouchableOpacity onPress={() => navigate(GAMEDETAILS)}>
+                <Icon style={chatCss.backArrow} name="arrow-left" size={24}/>
+            </TouchableOpacity>
+            <Text style={[commonStyles.heading, chatCss.w80]}>Game Messages</Text>
+        </View>
+        <ScrollView style={{marginBottom: 100, zIndex: 1, marginTop: 70}}
                     ref={ref => scrollView = ref}
-                    onContentSizeChange={(contentWidth, contentHeight)=>{
-            scrollView.scrollToEnd({animated: true});
-        }}>
+                    onContentSizeChange={() => {
+                        scrollView.scrollToEnd({animated: true});
+                    }}
+        >
             {messages.map(message => {
-                return <Card key={message._id}>
+                console.log(message.senderId == profile._id);
+                return <Card key={message._id}
+                             style={message.senderId == profile._id ? {backgroundColor: 'blue'}: ''}>
                     <Text>{message.senderName}</Text>
                     <Text>{message.message}</Text>
                     <Text>{moment(message.timestamp).format('LL HH:mm:ss')}</Text>
@@ -74,12 +86,15 @@ export const ChatScreen = () => {
             <TextInput
                 style={chatCss.input}
                 placeholder="Message"
-                ref={(input)=> inputRef=input}
-                onChangeText={(searchString) => {setTypeMessage(searchString)}}
+                ref={(input) => inputRef = input}
+                onSubmitEditing={sendMessage}
+                onChangeText={(searchString) => {
+                    setTypeMessage(searchString)
+                }}
                 underlineColorAndroid="grey"
             />
             <TouchableOpacity onPress={sendMessage}>
-            <Icon style={chatCss.searchIcon} name="paper-plane" size={24}/>
+                <Icon style={chatCss.searchIcon} name="paper-plane" size={24}/>
             </TouchableOpacity>
         </View>
     </View>)

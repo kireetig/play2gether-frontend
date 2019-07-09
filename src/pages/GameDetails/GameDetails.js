@@ -29,16 +29,28 @@ export const GameDetailsScreen = () => {
         setShowRequest(request => !request);
     };
 
-    const sendRequest = (isRequest) => {
-        const i = _.findIndex(profile.favSports, {_id: details.sportId});
-        const body = {
-            _id: profile._id,
-            name: profile.name,
-            selfRatingScore: i !== -1 ? profile.favSports[i].selfRatingScore : null,
-            userRatingScore: i !== -1 ? profile.favSports[i].userRatingScore : null,
-            message: message
-        };
-        const url = isRequest ? 'request' : 'unrequest';
+    const sendRequest = (isRequest, accept) => {
+        let body;
+        let url;
+        if (accept) {
+            body = {
+                ...accept,
+                isAccepted: !accept.isAccepted
+            };
+            url = 'toggleAccept'
+        } else {
+            const i = _.findIndex(profile.favSports, {_id: details.sportId});
+            body = {
+                _id: profile._id,
+                name: profile.name,
+                selfRatingScore: i !== -1 ? profile.favSports[i].selfRatingScore : null,
+                userRatingScore: i !== -1 ? profile.favSports[i].userRatingScore : null,
+                message: message,
+                isAccepted: accept
+            };
+            url = isRequest ? 'request' : 'unrequest';
+        }
+        console.log(url, body);
         fetch(`${apiEndPoint}/game/${url}?token=${token}&gameId=${details._id}`, {
             method: 'POST',
             headers: {
@@ -48,10 +60,13 @@ export const GameDetailsScreen = () => {
             body: JSON.stringify(body),
         }).then(res => res.json()).then(res => {
             if (res.status === 200) {
-                if (isRequest) {
+                if (isRequest && typeof accept === "boolean") {
                     toggleModal();
                     details.requests.push(body);
-                }else{
+                } else if (isRequest && typeof accept !== "boolean") {
+                    const j = _.findIndex(details.requests, accept);
+                    details.requests[j].isAccepted = !details.requests[j].isAccepted;
+                } else {
                     const reqI = _.findIndex(details.requests, {_id: body._id});
                     details.requests.splice(reqI, 1);
                 }
@@ -98,16 +113,16 @@ export const GameDetailsScreen = () => {
                     buttons = [{
                         name: 'Leave',
                         color: 'red',
-                        handler: () => sendRequest(false)
+                        handler: () => sendRequest(false, false)
                     }, {
                         name: 'Message',
                         color: 'green',
-                        handler: () => console.log('Message')
+                        handler: () => navigate(CHAT)
                     }]
                 } else {
                     buttons = [{
                         name: 'Retract Request',
-                        handler: () => sendRequest(false)
+                        handler: () => sendRequest(false, sendRequest)
                     }];
                 }
             }
@@ -175,7 +190,7 @@ export const GameDetailsScreen = () => {
                 <Text style={[commonStyles.fwbold]}>Players joining the game</Text>
                 {details.requests.map(person => {
                     if (person.isAccepted) {
-                        return <Text>{person.name}</Text>
+                        return <Text key={person._id}>{person.name}</Text>
                     }
                 })}
             </View>
@@ -183,16 +198,18 @@ export const GameDetailsScreen = () => {
                 {getButtons()}
             </View>
             {showRequests ? <View style={commonStyles.m10}>
-                {details.requests.length === 0 ? <Text>No Requests yet</Text> :
-                    details.requests.map(person => {
-                        return <View key={person._id}>
-                            <Text style={commonStyles.fwbold}>Name: {person.name}</Text>
-                            <Text>User Rating: {ratings[person.userRatingScore]}</Text>
-                            <Text>Self Rating: {ratings[person.selfRatingScore]}</Text>
-                            <Text>Message: {person.message}</Text>
-                            {person.isAccepted ? <Button title={'Remove'}/> : <Button title={'Accept'}/>}
-                        </View>
-                    })}
+                {details.requests.length === 0 ? <Text>No Requests yet</Text> : details.requests.map(person => {
+                    return <View key={person._id}>
+                        <Text style={commonStyles.fwbold}>Name: {person.name}</Text>
+                        <Text>User Rating: {ratings[person.userRatingScore].name}</Text>
+                        <Text>Self Rating: {ratings[person.selfRatingScore].name}</Text>
+                        <Text>Message: {person.message || ''}</Text>
+                        {person.isAccepted ? <Button title={'Remove'} onPress={() =>
+                            sendRequest(true, person)}/> : <Button title={'Accept'}
+                                                                   onPress={() => sendRequest(true, person)}/>}
+                    </View>
+                })
+                }
 
             </View> : null}
             <Overlay
@@ -211,7 +228,7 @@ export const GameDetailsScreen = () => {
                         multiline={false}
                         onChangeText={input => setMessage(input)}
                     />
-                    <Button title={'Send Request'} onPress={() => sendRequest(true)}/>
+                    <Button title={'Send Request'} onPress={() => sendRequest(true, false)}/>
                 </View>
             </Overlay>
         </ScrollView>
