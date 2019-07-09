@@ -4,7 +4,7 @@ import {Icon, Overlay} from 'react-native-elements';
 import {useNavigation} from "react-navigation-hooks";
 import moment from "moment";
 import * as _ from 'lodash';
-import {CHAT, HOME} from "../../navigation/navigationConstants";
+import {CHAT, HOME, HOSTGAME} from "../../navigation/navigationConstants";
 import {commonStyles} from "../../commonStyles";
 import {detailStyles} from "./gameDetailsCss";
 import {useGlobalState} from "../../../App";
@@ -14,6 +14,7 @@ import {apiEndPoint, ratings} from "../../constants";
 export const GameDetailsScreen = () => {
     const {navigate} = useNavigation();
     const [details, setDetails] = useGlobalState('gameDetails');
+    const [editGame, setEditGame] = useGlobalState('editGame');
     const [profile] = useGlobalState('profile');
     const [token] = useGlobalState('token');
     const [modalVisible, setModalVisible] = React.useState(false);
@@ -98,6 +99,11 @@ export const GameDetailsScreen = () => {
         openExternalApp(url);
     };
 
+    const navigateToEdit = () => {
+        setEditGame(details);
+        navigate(HOSTGAME);
+    };
+
     const getButtons = () => {
         let buttons = [];
         if (profile._id !== details.hostId) {
@@ -130,7 +136,7 @@ export const GameDetailsScreen = () => {
             buttons = [
                 {
                     name: 'Edit',
-                    handler: () => console.log('edit'),
+                    handler: () => navigateToEdit(),
                     color: 'orange'
                 }, {
                     name: 'Requests',
@@ -204,7 +210,7 @@ export const GameDetailsScreen = () => {
                         <Text>User Rating: {ratings[person.userRatingScore].name}</Text>
                         <Text>Self Rating: {ratings[person.selfRatingScore].name}</Text>
                         <Text>Message: {person.message || ''}</Text>
-                        {person.isAccepted ? <Button title={'Remove'} onPress={() =>
+                        {person.isAccepted ? <Button title={'UnAccept'} onPress={() =>
                             sendRequest(true, person)}/> : <Button title={'Accept'}
                                                                    onPress={() => sendRequest(true, person)}/>}
                     </View>

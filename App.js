@@ -7,7 +7,8 @@ const initialState = {
     gameDetails: null,
     sports: [],
     games: [],
-    token: null
+    token: null,
+    editGame: null,
 };
 export const {GlobalStateProvider, useGlobalState} = createGlobalState(initialState);
 

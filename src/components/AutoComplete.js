@@ -7,6 +7,10 @@ export const AutoComplete = (props) => {
 
     const [place, setPlace] = React.useState(null);
 
+    React.useEffect(() => {
+        setPlace(props.place);
+    });
+
     const openSearchModal = () => {
         RNGooglePlaces.openAutocompleteModal({
             country: props.country

@@ -14,7 +14,7 @@ import {useGlobalState} from '../../../App';
 import {getGamesUtil} from "../../utils/getGames";
 import AsyncStorage from "@react-native-community/async-storage";
 
-export const HostGameScreen = () => {
+export const HostGameScreen = (props) => {
     const {navigate} = useNavigation();
     const [selectedSport, setSelectedSport] = React.useState([]);
     const [token] = useGlobalState('token');
@@ -26,6 +26,7 @@ export const HostGameScreen = () => {
     const [description, setDescription] = React.useState('');
     const [sports] = useGlobalState('sports');
     const [, setGames] = useGlobalState('games');
+    const [editGame, setEditGame] = useGlobalState('editGame');
 
     const sportChange = selectedItem => {
         setSelectedSport(selectedItem)
@@ -54,6 +55,26 @@ export const HostGameScreen = () => {
             }
         });
     };
+
+    React.useEffect(() => {
+        if(editGame !== null){
+            setSelectedSport([editGame.sportId]);
+            const place = {
+                name: editGame.venue,
+                address: editGame.venueAddress
+            };
+            setPlace(place);
+            setDate(editGame.gameDate);
+            setDescription(editGame.description);
+        }
+        props.navigation.addListener('willFocus', () => {
+            setSelectedSport([]);
+            setPlace(null);
+            setDate(null);
+            setDescription('');
+            // do something like this.setState() to update your view
+        });
+    }, []);
 
     const hostGame = async () => {
         if (selectedSport.length === 0) {
@@ -87,6 +108,7 @@ export const HostGameScreen = () => {
             }).then(res => res.json()).then(async (res) => {
                 if (res.status === 200) {
                     getGames();
+                    setEditGame(null);
                     navigate(HOME);
                 } else {
                     setErrMsg(res.message);
@@ -102,7 +124,7 @@ export const HostGameScreen = () => {
                 selectedSports={selectedSport}
                 onChange={sportChange}/>
         <Text style={hostGameStyles.label}>Venue:</Text>
-        <AutoComplete country={profile ? profile.country : ''} setPlace={getPlace}/>
+        <AutoComplete country={profile ? profile.country : ''} place={place} setPlace={getPlace}/>
         <Text style={hostGameStyles.label}>Date:</Text>
         {date ? <Text>{moment(date).format('LL HH:mm')}</Text> : null}
         <Button title={'Select Date'} onPress={toggleDatePicker}/>
@@ -117,6 +139,7 @@ export const HostGameScreen = () => {
             style={hostGameStyles.description}
             multiline={true}
             numberOfLines={4}
+            value={description}
             onChangeText={input => setDescription(input)}
         />
         <Text>Hint: Write how many players you want to join you and cost division if any.</Text>

@@ -1,11 +1,10 @@
 import * as React from 'react';
-import {Text, View, Button, ScrollView, TouchableOpacity} from 'react-native';
+import {Text, View, Button, ScrollView, TouchableOpacity, RefreshControl} from 'react-native';
 import {useNavigation} from 'react-navigation-hooks';
 import AsyncStorage from '@react-native-community/async-storage';
 import {Card} from "react-native-elements";
 import moment from "moment";
 import * as _ from 'lodash';
-import {homeStyles} from "./homeCss";
 import {GAMEDETAILS, LOGIN} from "../../navigation/navigationConstants";
 import {commonStyles} from "../../commonStyles";
 import {useGlobalState} from '../../../App';
@@ -19,6 +18,7 @@ export const HomeScreen = () => {
     const [token] = useGlobalState('token');
     const [, setGameDetails] = useGlobalState('gameDetails');
     const [, setProfile] = useGlobalState('profile');
+    const [refreshing, setRefresh] = React.useState(false);
 
     const logout = () => {
         AsyncStorage.removeItem('playToken');
@@ -43,9 +43,11 @@ export const HomeScreen = () => {
     };
 
     const getGames = () => {
+        setRefresh(true);
         getGamesUtil(token).then(res => {
             if (res.status === 200) {
                 const games = _.groupBy(res.data, 'sportName');
+                setRefresh(false);
                 setGames(games);
             } else if (res.status === 403) {
                 AsyncStorage.removeItem(tokenName);
@@ -59,27 +61,34 @@ export const HomeScreen = () => {
         getGames();
     }, []);
 
-    return (<ScrollView>
-        {Object.keys(games).map((key) => {
-            const game = games[key];
-            return (<View key={key}>
-                <Text style={[commonStyles.heading]}>{key}</Text>
-                {game.map(item => {
-                    return (
-                        <TouchableOpacity key={item._id} onPress={() => gotoDetails(item)}>
-                            <Card>
-                                <Text
-                                    style={commonStyles.fwbold}>Date: {moment(item.gameDate).format('LL HH:mm')}</Text>
-                                <Text>Venue: {item.venue}</Text>
-                                <Text>Hosted by: {item.hostName}</Text>
-                            </Card>
-                        </TouchableOpacity>)
-                })}
-            </View>)
-        })}
+    return (
+        <ScrollView refreshControl={
+            <RefreshControl
+                refreshing={refreshing}
+                onRefresh={getGames}
+            />
+        }
+        >
+            {Object.keys(games).map((key) => {
+                const game = games[key];
+                return (<View key={key}>
+                    <Text style={[commonStyles.heading]}>{key}</Text>
+                    {game.map(item => {
+                        return (
+                            <TouchableOpacity key={item._id} onPress={() => gotoDetails(item)}>
+                                <Card>
+                                    <Text
+                                        style={commonStyles.fwbold}>Date: {moment(item.gameDate).format('LL HH:mm')}</Text>
+                                    <Text>Venue: {item.venue}</Text>
+                                    <Text>Hosted by: {item.hostName}</Text>
+                                </Card>
+                            </TouchableOpacity>)
+                    })}
+                </View>)
+            })}
 
-        <Button title={'Logout'} color={'red'}
-                onPress={logout}
-        />
-    </ScrollView>)
+            <Button title={'Logout'} color={'red'}
+                    onPress={logout}
+            />
+        </ScrollView>)
 };

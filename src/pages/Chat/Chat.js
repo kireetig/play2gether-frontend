@@ -1,5 +1,5 @@
 import * as React from 'react';
-import {Text, View, ScrollView, TouchableOpacity} from 'react-native';
+import {Text, View, ScrollView, TouchableOpacity, RefreshControl} from 'react-native';
 import {useNavigation} from 'react-navigation-hooks';
 import {Card} from "react-native-elements";
 import moment from "moment";
@@ -21,6 +21,7 @@ export const ChatScreen = () => {
     const [gameDetails] = useGlobalState('gameDetails');
     const [messages, setMessages] = React.useState([]);
     const [typeMessage, setTypeMessage] = React.useState('');
+    const [refreshing, setRefresh] = React.useState(false);
     let inputRef = React.useRef('');
     let scrollView = React.useRef('');
 
@@ -38,8 +39,10 @@ export const ChatScreen = () => {
     };
 
     const getMessages = () => {
+        setRefresh(true);
         fetch(`${apiEndPoint}/game/message?token=${token}&gameId=${gameDetails._id}&userId=${profile._id}`)
             .then(res => res.json()).then(res => {
+                setRefresh(false);
             if (res.status === 200) {
                 setMessages(res.result);
             } else {
@@ -69,6 +72,12 @@ export const ChatScreen = () => {
         <ScrollView
             style={{marginBottom: 100, zIndex: 1, marginTop: 70}}
             ref={ref => scrollView = ref}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={getMessages}
+                />
+            }
             onContentSizeChange={() => {
                 scrollView.scrollToEnd({animated: true});
             }}

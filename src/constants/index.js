@@ -1,4 +1,5 @@
 export const apiEndPoint = 'https://play2gether.herokuapp.com';
+// export const apiEndPoint = 'http://192.168.1.58:3000';
 export const tokenName = 'playToken';
 export const ratings = [
     {
